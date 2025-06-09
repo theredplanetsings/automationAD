@@ -2,7 +2,7 @@ Import-Module ActiveDirectory
 #global constants
 $domainname = "paradigmcos.com"
 $company = "Paradigm Companies"
-$UserPassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
+$defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
 
 # step 1: creating a new user in the AD [placeholders used for properties until actual values are known]
 New-ADUser `
@@ -12,7 +12,7 @@ New-ADUser `
     -SamAccountName "jdoe" `
     -UserPrincipalName "jdoe@$domainname" `
     -Path "OU=Users,DC=domain,DC=com" `
-    -AccountPassword $UserPassword `
+    -AccountPassword $defaultpassword `
     -Enabled $true `
     -PassThru | Out-Null
 
