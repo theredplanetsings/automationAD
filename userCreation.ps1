@@ -14,7 +14,7 @@ New-ADUser `
     -Path "OU=Users,DC=domain,DC=com" `
     -AccountPassword $defaultpassword `
     -Enabled $true `
-    -PassThru | Out-Null
+    -PassThru
 
 # step 2: assigning specified security groups to the user [currently using placeholders until actual property names are known]
 Add-ADGroupMember -Identity "IT-Security" -Members "jdoe"
