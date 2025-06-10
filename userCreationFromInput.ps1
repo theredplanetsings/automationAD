@@ -30,7 +30,7 @@ New-ADUser `
     -Path "OU=Users,DC=domain,DC=com" ` #adjust accordingly
     -AccountPassword $defaultpassword `
     -Enabled $true `
-    -PassThru | Out-Null
+    -PassThru
 
 # will assign security groups (if provided)
 if ($GroupsInput) {
