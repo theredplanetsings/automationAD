@@ -1,39 +1,61 @@
 Import-Module ActiveDirectory
-#global constants
+
+# global constants/hardcoded values for testing purposes
 $domainname = "paradigmcos.com"
 $company = "Paradigm Companies"
 $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
 $newUsername = "jdoe"
+$firstname = "John"
+$lastname = "Doe"
+$displayname = "$firstname $lastname"
+$physicalDeliveryOfficeName = "Corporate"
+$streetAddress = "123 Main St"
+$postalCode = "12345"
+$telephoneNumber = "123-456-7890"
+$mail = "$newUsername@$domainname"
+$mailNickname = $newUsername
+$proxyAddresses = "smtp:$newUsername@$domainname"
+$title = "IT Specialist"
+$department = "IT"
+$l = "CityName" # City
+$st = "VA" # state (abbreviated)
 
-# step 1: creating a new user in the AD [placeholders used for properties until actual values are known]
+# creating the new user with starter properties
 New-ADUser  `
-    -Name "John Doe" `
+    -Name $displayname `
     -AccountPassword $defaultpassword `
-    -GivenName "John" `
-    -Surname "Doe"  `
+    -GivenName $firstname `
+    -Surname $lastname `
+    -DisplayName $displayname `
     -SamAccountName $newUsername `
     -UserPrincipalName "$newUsername@$domainname" `
+    -ChangePasswordAtLogon $true `
     -Path "OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local" `
     -Enabled $true
-    #-PassThru
 
-# step 2: assigning specified security groups to the user [currently using placeholders until actual property names are known]
-Add-ADGroupMember -Identity "VPN Users" -Members "$newUsername"
-# if we want to unassign a security group from a user:
-# Remove-ADGroupMember -Identity "IT-Security" -Members "jdoe" -Confirm:$false
+# assigning the user to security groups
+Add-ADGroupMember -Identity "VPN Users" -Members $newUsername
+# (To remove a user from a group, you can use
+# Remove-ADGroupMember -Identity "IT-Security" -Members $newUsername -Confirm:$false)
 
-# step 3: assign additional user properties [currently using placeholders until actual property names are known]
+# additional user attributes to be set after initial creation
 Set-ADUser `
-    -Identity "$newUsername" `
-    -Office "Main Office" `
-    -OfficePhone "123-456-7890" `
-    -EmailAddress "$newUsername@$domainname" `
+    -Identity $newUsername `
+    -Office $physicalDeliveryOfficeName `
+    -OfficePhone $telephoneNumber `
+    -EmailAddress $mail `
     -Replace @{
-        mailNickname = "jdoe"
-        proxyAddresses = "smtp:$newUsername@$domainname"
-        title = "IT Specialist"
-        department = "IT"
-        company = "$company"
+        streetAddress = $streetAddress
+        postalCode = $postalCode
+        telephoneNumber = $telephoneNumber
+        mail = $mail
+        mailNickname = $mailNickname
+        proxyAddresses = $proxyAddresses
+        title = $title
+        department = $department
+        company = $company
+        l = $l
+        st = $st
     }
 
 # modify variables & attributes as needed for further testing
