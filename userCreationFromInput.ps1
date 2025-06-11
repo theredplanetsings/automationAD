@@ -18,6 +18,7 @@ $JobTitle = Read-Host "Enter Job Title"
 $Department = Read-Host "Enter Department"
 $Company = Read-Host "Enter Company"
 $GroupsInput = Read-Host "Enter comma-separated Security Groups (if any, leave blank if none)"
+$state = Read-Host "Enter State (abbreviation, e.g. VA for Virginia)"
 
 # produce derived values
 $username = "$($FirstName.Substring(0,1))$LastName".ToLower()
@@ -29,7 +30,9 @@ New-ADUser `
     -Name $fullName `
     -GivenName $FirstName `
     -Surname $LastName `
-    -SamAccountName $username `
+    -sAMAccountName $username `
+    -mailNickname $MailNickname `
+    -mail $Email `
     -UserPrincipalName $userPrincipalName `
     -Path "OU=Users,DC=paradigmcos,DC=local" ` # adjust accordingly if needed
     -AccountPassword $defaultpassword `
@@ -47,7 +50,7 @@ if ($GroupsInput) {
 # sets the additional user properties for new user
 Set-ADUser $username `
     -Replace @{
-        physicalDeliveryOfficeName = $Office
+        physicalDeliveryOfficeName = $Office #e.g Corporate
         streetAddress              = $Address
         postalCode                 = $PostalCode
         telephoneNumber            = $Telephone
@@ -55,7 +58,8 @@ Set-ADUser $username `
         mailNickname               = $MailNickname
         proxyAddresses             = ($ProxyAddressesIn -split ",")
         title                      = $JobTitle
-        department                 = $Department
-        company                    = $Company
+        department                 = $Department #e.g. Admin
+        company                    = $Company #e.g. Paradigm Services
         name                       = $fullName
+        st                         = $state
     }
