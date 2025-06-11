@@ -1,37 +1,41 @@
 Import-Module ActiveDirectory
 #global constants
-$domainname = "paradigmcos.com"
-$company = "Paradigm Companies"
+$domainname = "paradigmcos.local"
+$company = "Paradigm Services" #edit as needed
 $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
-
+$mailaddy = "jdoe@paradigmcos.com"
 # step 1: creating a new user in the AD [placeholders used for properties until actual values are known]
 New-ADUser `
     -Name "John Doe" `
     -GivenName "John" `
     -Surname "Doe" `
-    -SamAccountName "jdoe" `
-    -UserPrincipalName "jdoe@$domainname" `
-    -Path "OU=Users,DC=domain,DC=com" `
+    -sAMAccountName "jdoe" `
+    -mailNickname "jdoe" `
+    -mail $mailaddy `
+    -UserPrincipalName "jdoe@paradigmcos.com" `
+    -Path "OU=Users,DC=paradigmcos,DC=local" ` # adjust accordingly if needed
     -AccountPassword $defaultpassword `
     -Enabled $true `
     -PassThru
 
+$proxyaddy = "SMTP:$mailaddy"
 # step 2: assigning specified security groups to the user [currently using placeholders until actual property names are known]
-Add-ADGroupMember -Identity "IT-Security" -Members "jdoe"
+Add-ADGroupMember -Identity "IT Staff" -Members "jdoe"
 # if we want to unassign a security group from a user:
-# Remove-ADGroupMember -Identity "IT-Security" -Members "jdoe" -Confirm:$false
+# Remove-ADGroupMember -Identity "IT Staff" -Members "jdoe" -Confirm:$false
 
 # step 3: assign additional user properties [currently using placeholders until actual property names are known]
-Set-ADUser "jdoe" `
-    -Office "Main Office" `
-    -OfficePhone "123-456-7890" `
-    -EmailAddress "jdoe@$domainname" `
+Set-ADUser $username `
     -Replace @{
-        mailNickname = "jdoe"
-        proxyAddresses = "smtp:jdoe@$domainname"
-        title = "IT Specialist"
-        department = "IT"
-        company = "$company"
+        physicalDeliveryOfficeName = "Corporate"
+        streetAddress              = "123 Jane Doe Lane"
+        postalCode                 = "12345"
+        telephoneNumber            = "123-456-7891"
+        mailNickname               = "jdoe"
+        proxyAddresses             = $proxyaddy
+        title                      = "IT Staff"
+        department                 = "Admin"
+        company                    = $company
+        st                         = "VA"
     }
-
 # modify variables & attributes as needed for further testing
