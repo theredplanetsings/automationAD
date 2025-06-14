@@ -1,3 +1,5 @@
+<# Basic script to test user creation/addition to security groups/user property customisation#>
+
 Import-Module ActiveDirectory
 
 # global constants/hardcoded values for testing purposes
