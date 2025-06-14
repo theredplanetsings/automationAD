@@ -1,4 +1,4 @@
-<# interface, works with ad-user.ps1, cannot test without having permission to edit AD#>
+<# interface, works with ad-user.ps1#>
 
 #imports
 Get-Module -ListAvailable ActiveDirectory
