@@ -1,5 +1,5 @@
 <#non-modular version, contains create user, page switching, and csv import/data validation logic#>
-
+<#need to add handling for duplicates in CSVs#>
 #imports
 Get-Module -ListAvailable ActiveDirectory
 Import-Module ActiveDirectory
