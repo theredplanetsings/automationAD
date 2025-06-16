@@ -1,4 +1,5 @@
-<#non-modular version, contains create user, page switching, and csv import/data validation logic#>
+<#need to add handling for duplicates in CSVs#>
+
 #imports
 Get-Module -ListAvailable ActiveDirectory
 Import-Module ActiveDirectory
@@ -575,4 +576,8 @@ $btnNext.Add_Click({
 $ShowPage1.Invoke()
 
 # initialises the main form
+<<<<<<< HEAD
 [void]$form.ShowDialog()
+=======
+[void]$form.ShowDialog()
+>>>>>>> 62e5133b25956499e00ff9b38f0861aef9d5e39b

@@ -1,3 +1,4 @@
+<# Basic script to test user creation/addition to security groups/user property customisation#>
 Import-Module ActiveDirectory
 
 # global constants/hardcoded values for testing purposes
@@ -58,4 +59,8 @@ Set-ADUser `
         st = $st
     }
 
+<<<<<<< HEAD
 # modify variables & attributes as needed for further testing
+=======
+# modify variables & attributes as needed for further testing
+>>>>>>> 62e5133b25956499e00ff9b38f0861aef9d5e39b

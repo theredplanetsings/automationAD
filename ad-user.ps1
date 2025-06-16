@@ -1,4 +1,4 @@
-<# ad-user, works with interfacemodular.ps1, cannot test without having permission to edit AD#>
+<# ad-user, works with interface.ps1#>
 function Create-ADUserFromForm {
     param(
         [Parameter(Mandatory)]
