@@ -387,6 +387,17 @@ $btnBack2.Add_Click({
 })
 $form.Controls.Add($btnBack2)
 
+# back button from add user page to dashboard
+$btnBackToDashboardFromAdd = New-Object System.Windows.Forms.Button
+$btnBackToDashboardFromAdd.Text = "Back to Dashboard"
+$btnBackToDashboardFromAdd.Location = New-Object System.Drawing.Point(325,450)
+$btnBackToDashboardFromAdd.Width = 150
+$btnBackToDashboardFromAdd.Visible = $false
+$btnBackToDashboardFromAdd.Add_Click({
+    $ShowDashboard.Invoke()
+})
+$form.Controls.Add($btnBackToDashboardFromAdd)
+
 ## page switch logic
 $ShowPage1 = {
     $lblFirstName.Visible = $true
@@ -399,6 +410,10 @@ $ShowPage1 = {
     $cmbCompany.Visible = $true
     $btnNext.Visible = $true
     $btnSelectCsv.Visible = $true
+    $btnBackToDashboardFromAdd.Visible = $true
+
+    $btnGoToSearch.Visible = $false
+    $btnGoToAddUser.Visible = $false
 
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
@@ -572,9 +587,156 @@ $btnNext.Add_Click({
     $ShowPage2.Invoke()
 })
 
-# shows only page 1 on initial startup
-$ShowPage1.Invoke()
+## dashboard page
+$btnGoToSearch = New-Object System.Windows.Forms.Button
+$btnGoToSearch.Text = "Search/View Existing User"
+$btnGoToSearch.Location = New-Object System.Drawing.Point(300,180)
+$btnGoToSearch.Width = 200
+$btnGoToSearch.Height = 50
+$btnGoToSearch.Visible = $true
+$btnGoToSearch.Add_Click({ $ShowUserSearch.Invoke() })
+$form.Controls.Add($btnGoToSearch)
 
-# initialises the main form
+$btnGoToAddUser = New-Object System.Windows.Forms.Button
+$btnGoToAddUser.Text = "Add New User"
+$btnGoToAddUser.Location = New-Object System.Drawing.Point(300,260)
+$btnGoToAddUser.Width = 200
+$btnGoToAddUser.Height = 50
+$btnGoToAddUser.Visible = $true
+$btnGoToAddUser.Add_Click({ $ShowPage1.Invoke() })
+$form.Controls.Add($btnGoToAddUser)
+
+## user search/summary page controls
+$lblSearch = New-Object System.Windows.Forms.Label
+$lblSearch.Text = "Search for User (Username, First, or Last Name):"
+$lblSearch.Location = New-Object System.Drawing.Point(200,100)
+$lblSearch.AutoSize = $true
+$lblSearch.Visible = $false
+$form.Controls.Add($lblSearch)
+
+$txtSearch = New-Object System.Windows.Forms.TextBox
+$txtSearch.Location = New-Object System.Drawing.Point(200,130)
+$txtSearch.Width = 250
+$txtSearch.Visible = $false
+$form.Controls.Add($txtSearch)
+
+$btnSearchUser = New-Object System.Windows.Forms.Button
+$btnSearchUser.Text = "Search"
+$btnSearchUser.Location = New-Object System.Drawing.Point(470,128)
+$btnSearchUser.Width = 80
+$btnSearchUser.Visible = $false
+$form.Controls.Add($btnSearchUser)
+
+$lstSearchResults = New-Object System.Windows.Forms.ListBox
+$lstSearchResults.Location = New-Object System.Drawing.Point(200,170)
+$lstSearchResults.Size = New-Object System.Drawing.Size(350,150)
+$lstSearchResults.Visible = $false
+$form.Controls.Add($lstSearchResults)
+
+$txtUserSummary = New-Object System.Windows.Forms.TextBox
+$txtUserSummary.Multiline = $true
+$txtUserSummary.ReadOnly = $true
+$txtUserSummary.Location = New-Object System.Drawing.Point(200,340)
+$txtUserSummary.Size = New-Object System.Drawing.Size(350,150)
+$txtUserSummary.ScrollBars = 'Vertical'
+$txtUserSummary.Font = New-Object System.Drawing.Font("Consolas",10)
+$txtUserSummary.Visible = $false
+$form.Controls.Add($txtUserSummary)
+
+$btnBackToDashboard = New-Object System.Windows.Forms.Button
+$btnBackToDashboard.Text = "Back to Dashboard"
+$btnBackToDashboard.Location = New-Object System.Drawing.Point(300,510)
+$btnBackToDashboard.Width = 150
+$btnBackToDashboard.Visible = $false
+$btnBackToDashboard.Add_Click({ $ShowDashboard.Invoke() })
+$form.Controls.Add($btnBackToDashboard)
+
+## page switch logic
+$ShowDashboard = {
+    $btnGoToSearch.Visible = $true
+    $btnGoToAddUser.Visible = $true
+    $lblSearch.Visible = $false
+    $txtSearch.Visible = $false
+    $btnSearchUser.Visible = $false
+    $lstSearchResults.Visible = $false
+    $txtUserSummary.Visible = $false
+    $btnBackToDashboard.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+    # hides user add controls
+    $lblFirstName.Visible = $false
+    $txtFirstName.Visible = $false
+    $lblLastName.Visible = $false
+    $txtLastName.Visible = $false
+    $lblUsername.Visible = $false
+    $txtUsername.Visible = $false
+    $lblCompany.Visible = $false
+    $cmbCompany.Visible = $false
+    $btnNext.Visible = $false
+    $btnSelectCsv.Visible = $false
+}
+
+$ShowUserSearch = {
+    $btnGoToSearch.Visible = $false
+    $btnGoToAddUser.Visible = $false
+    $lblSearch.Visible = $true
+    $txtSearch.Visible = $true
+    $btnSearchUser.Visible = $true
+    $lstSearchResults.Visible = $true
+    $txtUserSummary.Visible = $true
+    $btnBackToDashboard.Visible = $true
+    # hides user add controls
+    $lblFirstName.Visible = $false
+    $txtFirstName.Visible = $false
+    $lblLastName.Visible = $false
+    $txtLastName.Visible = $false
+    $lblUsername.Visible = $false
+    $txtUsername.Visible = $false
+    $lblCompany.Visible = $false
+    $cmbCompany.Visible = $false
+    $btnNext.Visible = $false
+    $btnSelectCsv.Visible = $false
+}
+
+## user search logic
+$btnSearchUser.Add_Click({
+    $lstSearchResults.Items.Clear()
+    $txtUserSummary.Text = ""
+    $query = $txtSearch.Text.Trim()
+    if (-not $query) {
+        [System.Windows.Forms.MessageBox]::Show("Please enter a search term.","Input Error")
+        return
+    }
+    try {
+        $users = Get-ADUser -Filter {SamAccountName -like "*$query*" -or GivenName -like "*$query*" -or Surname -like "*$query*"} -Properties *
+        if ($users) {
+            foreach ($user in $users) {
+                $lstSearchResults.Items.Add("{0} ({1})" -f $user.Name, $user.SamAccountName)
+            }
+        } else {
+            $lstSearchResults.Items.Add("No users found.")
+        }
+    } catch {
+        $lstSearchResults.Items.Add("Error searching AD: $($_.Exception.Message)")
+    }
+})
+
+$lstSearchResults.Add_SelectedIndexChanged({
+    $txtUserSummary.Text = ""
+    if ($lstSearchResults.SelectedItem -and -not ($lstSearchResults.SelectedItem -like "No users found.*")) {
+        $selected = $lstSearchResults.SelectedItem
+        $sam = $selected -replace ".*\(([^)]+)\)", '$1'
+        try {
+            $user = Get-ADUser -Identity $sam -Properties *
+            $groups = (Get-ADPrincipalGroupMembership -Identity $sam | Select-Object -ExpandProperty Name) -join ", "
+            $summary = "Name: $($user.Name)`r`nUsername: $($user.SamAccountName)`r`nEmail: $($user.EmailAddress)`r`nTitle: $($user.Title)`r`nDepartment: $($user.Department)`r`nCompany: $($user.Company)`r`nOffice: $($user.Office)`r`nGroups: $groups"
+            $txtUserSummary.Text = $summary
+        } catch {
+            $txtUserSummary.Text = "Error retrieving user details: $($_.Exception.Message)"
+        }
+    }
+})
+
+## initialises
+$ShowDashboard.Invoke()
 
 [void]$form.ShowDialog()
