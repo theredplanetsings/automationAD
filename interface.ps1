@@ -1,4 +1,4 @@
-<#need to add handling for duplicates in CSVs#>
+<#self-contained with functions to add + handle interface#>
 
 #imports
 Get-Module -ListAvailable ActiveDirectory
