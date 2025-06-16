@@ -87,6 +87,8 @@ $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
 
 # CSV import/validation
+## update as needed, determines the columns required in the CSV file to autopopulate dropdowns.
+# must add additional dropdown sections to this program if you add more columns to the CSV.
 $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddress","Department","Title")
 $csvData = $null
 $csvError = $false
