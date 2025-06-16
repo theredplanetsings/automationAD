@@ -78,7 +78,7 @@ function Create-ADUserFromForm {
 
 # initialises form and controls
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Automation AD - Create User"
+$form.Text = "Automation AD - Dashboard"
 $form.Size = New-Object System.Drawing.Size(800,600)
 $form.MinimumSize = New-Object System.Drawing.Size(800,600)
 $form.MaximumSize = New-Object System.Drawing.Size(800,600)
