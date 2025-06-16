@@ -1,7 +1,7 @@
-# Enforce Windows (CRLF) line endings for PowerShell scripts
+# enforce Windows (CRLF) line endings for PowerShell scripts
 *.ps1 text eol=crlf
 
-# Optionally, enforce CRLF for batch and text files as well
+# enforce CRLF for batch and text files as well
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.txt text eol=
