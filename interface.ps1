@@ -1,5 +1,4 @@
 <#self-contained with functions to add users, search for existing users/display summary of their account, and handle interface#>
-
 #imports
 Get-Module -ListAvailable ActiveDirectory
 Import-Module ActiveDirectory
