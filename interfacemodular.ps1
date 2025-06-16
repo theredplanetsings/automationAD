@@ -33,14 +33,14 @@ function Populate-DropdownsFromCsv {
     $cmbDepartment.Items.Clear()
     $cmbTitle.Items.Clear()
     
-    $cmbOffice.Items.AddRange(($data | Select-Object -ExpandProperty Office -Unique))
-    $cmbCompany.Items.AddRange(($data | Select-Object -ExpandProperty Company -Unique))
-    $cmbState.Items.AddRange(($data | Select-Object -ExpandProperty State -Unique))
-    $cmbCity.Items.AddRange(($data | Select-Object -ExpandProperty City -Unique))
-    $cmbPostalCode.Items.AddRange(($data | Select-Object -ExpandProperty PostalCode -Unique))
-    $cmbStreetAddress.Items.AddRange(($data | Select-Object -ExpandProperty StreetAddress -Unique))
-    $cmbDepartment.Items.AddRange(($data | Select-Object -ExpandProperty Department -Unique))
-    $cmbTitle.Items.AddRange(($data | Select-Object -ExpandProperty Title -Unique))
+    $cmbOffice.Items.AddRange(($data | Select-Object -ExpandProperty Office | Sort-Object -Unique))
+    $cmbCompany.Items.AddRange(($data | Select-Object -ExpandProperty Company | Sort-Object -Unique))
+    $cmbState.Items.AddRange(($data | Select-Object -ExpandProperty State | Sort-Object -Unique))
+    $cmbCity.Items.AddRange(($data | Select-Object -ExpandProperty City | Sort-Object -Unique))
+    $cmbPostalCode.Items.AddRange(($data | Select-Object -ExpandProperty PostalCode | Sort-Object -Unique))
+    $cmbStreetAddress.Items.AddRange(($data | Select-Object -ExpandProperty StreetAddress | Sort-Object -Unique))
+    $cmbDepartment.Items.AddRange(($data | Select-Object -ExpandProperty Department | Sort-Object -Unique))
+    $cmbTitle.Items.AddRange(($data | Select-Object -ExpandProperty Title | Sort-Object -Unique))
 }
 
 ## page 1 controls, first page we see
