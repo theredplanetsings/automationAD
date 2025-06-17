@@ -415,6 +415,7 @@ $ShowPage1 = {
 
     $btnGoToSearch.Visible = $false
     $btnGoToAddUser.Visible = $false
+    $btnGoToLicenses.Visible = $false
 
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
@@ -607,6 +608,14 @@ $btnGoToAddUser.Visible = $true
 $btnGoToAddUser.Add_Click({ $ShowPage1.Invoke() })
 $form.Controls.Add($btnGoToAddUser)
 
+$btnGoToLicenses = New-Object System.Windows.Forms.Button
+$btnGoToLicenses.Text = "Licenses"
+$btnGoToLicenses.Location = New-Object System.Drawing.Point(300,340)
+$btnGoToLicenses.Width = 200
+$btnGoToLicenses.Height = 50
+$btnGoToLicenses.Visible = $true
+$form.Controls.Add($btnGoToLicenses)
+
 ## user search/summary page controls
 $lblSearch = New-Object System.Windows.Forms.Label
 $lblSearch.Text = "Search for User (Username, First, or Last Name):"
@@ -652,10 +661,95 @@ $btnBackToDashboard.Visible = $false
 $btnBackToDashboard.Add_Click({ $ShowDashboard.Invoke() })
 $form.Controls.Add($btnBackToDashboard)
 
+## licenses page controls
+$lblLicenseSearch = New-Object System.Windows.Forms.Label
+$lblLicenseSearch.Text = "Search for User (Username or Email):"
+$lblLicenseSearch.Location = New-Object System.Drawing.Point(200,65)
+$lblLicenseSearch.AutoSize = $true
+$lblLicenseSearch.Visible = $false
+$form.Controls.Add($lblLicenseSearch)
+
+$txtLicenseSearch = New-Object System.Windows.Forms.TextBox
+$txtLicenseSearch.Location = New-Object System.Drawing.Point(200,85)
+$txtLicenseSearch.Width = 250
+$txtLicenseSearch.Visible = $false
+$form.Controls.Add($txtLicenseSearch)
+
+$btnLicenseUserSearch = New-Object System.Windows.Forms.Button
+$btnLicenseUserSearch.Text = "Search"
+$btnLicenseUserSearch.Location = New-Object System.Drawing.Point(470,83)
+$btnLicenseUserSearch.Width = 80
+$btnLicenseUserSearch.Visible = $false
+$form.Controls.Add($btnLicenseUserSearch)
+
+$lstLicenseUserResults = New-Object System.Windows.Forms.ListBox
+$lstLicenseUserResults.Location = New-Object System.Drawing.Point(200,120)
+$lstLicenseUserResults.Size = New-Object System.Drawing.Size(350,95)
+$lstLicenseUserResults.Visible = $false
+$form.Controls.Add($lstLicenseUserResults)
+
+$lblCurrentLicenses = New-Object System.Windows.Forms.Label
+$lblCurrentLicenses.Text = "Current Licenses:"
+$lblCurrentLicenses.Location = New-Object System.Drawing.Point(200,220)
+$lblCurrentLicenses.AutoSize = $true
+$lblCurrentLicenses.Visible = $falseha
+$form.Controls.Add($lblCurrentLicenses)
+
+$txtCurrentLicenses = New-Object System.Windows.Forms.TextBox
+$txtCurrentLicenses.Multiline = $true
+$txtCurrentLicenses.ReadOnly = $true
+$txtCurrentLicenses.Location = New-Object System.Drawing.Point(200,240)
+$txtCurrentLicenses.Size = New-Object System.Drawing.Size(350,95)
+$txtCurrentLicenses.ScrollBars = 'Vertical'
+$txtCurrentLicenses.Font = New-Object System.Drawing.Font("Consolas",10)
+$txtCurrentLicenses.Visible = $false
+$form.Controls.Add($txtCurrentLicenses)
+
+$lblAvailableLicenses = New-Object System.Windows.Forms.Label
+$lblAvailableLicenses.Text = "Available Licenses:"
+$lblAvailableLicenses.Location = New-Object System.Drawing.Point(200,340)
+$lblAvailableLicenses.AutoSize = $true
+$lblAvailableLicenses.Visible = $false
+$form.Controls.Add($lblAvailableLicenses)
+
+$clbAvailableLicenses = New-Object System.Windows.Forms.CheckedListBox
+$clbAvailableLicenses.Location = New-Object System.Drawing.Point(200,360)
+$clbAvailableLicenses.Size = New-Object System.Drawing.Size(350,95)
+$clbAvailableLicenses.Visible = $false
+$form.Controls.Add($clbAvailableLicenses)
+
+$clbAvailableLicenses.SelectionMode = 'MultiSimple'
+$clbAvailableLicenses.IntegralHeight = $false
+$clbAvailableLicenses.TabStop = $false
+$clbAvailableLicenses.AllowDrop = $false
+$clbAvailableLicenses.Enabled = $true
+
+$clbAvailableLicenses.Add_KeyPress({ $_.Handled = $true })
+$clbAvailableLicenses.Add_KeyDown({
+    $allowed = @([System.Windows.Forms.Keys]::Up, [System.Windows.Forms.Keys]::Down, [System.Windows.Forms.Keys]::Space, [System.Windows.Forms.Keys]::Return)
+    if ($allowed -notcontains $_.KeyCode) { $_.SuppressKeyPress = $true }
+})
+
+$btnAssignLicenses = New-Object System.Windows.Forms.Button
+$btnAssignLicenses.Text = "Assign Selected Licenses"
+$btnAssignLicenses.Location = New-Object System.Drawing.Point(200,480)
+$btnAssignLicenses.Width = 200
+$btnAssignLicenses.Visible = $false
+$form.Controls.Add($btnAssignLicenses)
+
+$btnBackToDashboardFromLicenses = New-Object System.Windows.Forms.Button
+$btnBackToDashboardFromLicenses.Text = "Back to Dashboard"
+$btnBackToDashboardFromLicenses.Location = New-Object System.Drawing.Point(420,480)
+$btnBackToDashboardFromLicenses.Width = 130
+$btnBackToDashboardFromLicenses.Visible = $false
+$btnBackToDashboardFromLicenses.Add_Click({ $ShowDashboard.Invoke() })
+$form.Controls.Add($btnBackToDashboardFromLicenses)
+
 ## page switch logic
 $ShowDashboard = {
     $btnGoToSearch.Visible = $true
     $btnGoToAddUser.Visible = $true
+    $btnGoToLicenses.Visible = $true
     $lblSearch.Visible = $false
     $txtSearch.Visible = $false
     $btnSearchUser.Visible = $false
@@ -663,6 +757,7 @@ $ShowDashboard = {
     $txtUserSummary.Visible = $false
     $btnBackToDashboard.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
+    $btnBackToDashboardFromLicenses.Visible = $false
     # hides user add controls
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
@@ -674,11 +769,22 @@ $ShowDashboard = {
     $cmbCompany.Visible = $false
     $btnNext.Visible = $false
     $btnSelectCsv.Visible = $false
+    # hides licenses page controls
+    $lblLicenseSearch.Visible = $false
+    $txtLicenseSearch.Visible = $false
+    $btnLicenseUserSearch.Visible = $false
+    $lstLicenseUserResults.Visible = $false
+    $lblCurrentLicenses.Visible = $false
+    $txtCurrentLicenses.Visible = $false
+    $lblAvailableLicenses.Visible = $false
+    $clbAvailableLicenses.Visible = $false
+    $btnAssignLicenses.Visible = $false
 }
 
 $ShowUserSearch = {
     $btnGoToSearch.Visible = $false
     $btnGoToAddUser.Visible = $false
+    $btnGoToLicenses.Visible = $false
     $lblSearch.Visible = $true
     $txtSearch.Visible = $true
     $btnSearchUser.Visible = $true
@@ -697,6 +803,42 @@ $ShowUserSearch = {
     $btnNext.Visible = $false
     $btnSelectCsv.Visible = $false
 }
+
+$ShowLicensesPage = {
+    $btnGoToSearch.Visible = $false
+    $btnGoToAddUser.Visible = $false
+    $btnGoToLicenses.Visible = $false
+    $lblLicenseSearch.Visible = $true
+    $txtLicenseSearch.Visible = $true
+    $btnLicenseUserSearch.Visible = $true
+    $lstLicenseUserResults.Visible = $true
+    $lblCurrentLicenses.Visible = $true
+    $txtCurrentLicenses.Visible = $true
+    $lblAvailableLicenses.Visible = $true
+    $clbAvailableLicenses.Visible = $true
+    $btnAssignLicenses.Visible = $true
+    $btnBackToDashboardFromLicenses.Visible = $true
+    # Hide other controls
+    $lblSearch.Visible = $false
+    $txtSearch.Visible = $false
+    $btnSearchUser.Visible = $false
+    $lstSearchResults.Visible = $false
+    $txtUserSummary.Visible = $false
+    $btnBackToDashboard.Visible = $false
+    $lblFirstName.Visible = $false
+    $txtFirstName.Visible = $false
+    $lblLastName.Visible = $false
+    $txtLastName.Visible = $false
+    $lblUsername.Visible = $false
+    $txtUsername.Visible = $false
+    $lblCompany.Visible = $false
+    $cmbCompany.Visible = $false
+    $btnNext.Visible = $false
+    $btnSelectCsv.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+}
+
+$btnGoToLicenses.Add_Click({ $ShowLicensesPage.Invoke() })
 
 ## user search logic
 $btnSearchUser.Add_Click({
@@ -735,6 +877,90 @@ $lstSearchResults.Add_SelectedIndexChanged({
             $txtUserSummary.Text = "Error retrieving user details: $($_.Exception.Message)"
         }
     }
+})
+
+## licenses page functionality
+$btnLicenseUserSearch.Add_Click({
+    $lstLicenseUserResults.Items.Clear()
+    $txtCurrentLicenses.Text = ""
+    $clbAvailableLicenses.Items.Clear()
+    $query = $txtLicenseSearch.Text.Trim()
+    if (-not $query) {
+        [System.Windows.Forms.MessageBox]::Show("Please enter a search term.","Input Error")
+        return
+    }
+    try {
+        $users = Get-EntraUser -Filter "userPrincipalName eq '$query' or displayName eq '$query' or mail eq '$query'" -ErrorAction Stop
+        if ($users) {
+            foreach ($user in $users) {
+                $lstLicenseUserResults.Items.Add("{0} ({1})" -f $user.DisplayName, $user.UserPrincipalName)
+            }
+        } else {
+            $lstLicenseUserResults.Items.Add("No users found.")
+        }
+    } catch {
+        $lstLicenseUserResults.Items.Add("Error searching Entra: $($_.Exception.Message)")
+    }
+})
+
+$lstLicenseUserResults.Add_SelectedIndexChanged({
+    $txtCurrentLicenses.Text = ""
+    $clbAvailableLicenses.Items.Clear()
+    if ($lstLicenseUserResults.SelectedItem -and -not ($lstLicenseUserResults.SelectedItem -like "No users found.*")) {
+        $selected = $lstLicenseUserResults.SelectedItem
+        $upn = $selected -replace ".*\(([^)]+)\)", '$1'
+        try {
+            $userLicenses = Get-EntraUserLicenseDetail -UserId $upn
+            $txtCurrentLicenses.Text = ($userLicenses | ForEach-Object { $_.SkuPartNumber }) -join ", "
+            $allLicenses = Get-EntraSubscribedSku
+            foreach ($sku in $allLicenses) {
+                $checked = $userLicenses.SkuId -contains $sku.SkuId
+                $idx = $clbAvailableLicenses.Items.Add("{0} ({1})" -f $sku.SkuPartNumber, $sku.SkuId)
+                if ($checked) { $clbAvailableLicenses.SetItemChecked($idx, $true) }
+            }
+        } catch {
+            $txtCurrentLicenses.Text = "Error retrieving licenses: $($_.Exception.Message)"
+        }
+    }
+})
+
+$btnAssignLicenses.Add_Click({
+    if (-not $lstLicenseUserResults.SelectedItem) {
+        [System.Windows.Forms.MessageBox]::Show("Select a user first.","Input Error")
+        return
+    }
+    $upn = $lstLicenseUserResults.SelectedItem -replace ".*\(([^)]+)\)", '$1'
+    $checkedLicenses = @()
+    foreach ($item in $clbAvailableLicenses.CheckedItems) {
+        $skuId = $item -replace ".*\(([^)]+)\)", '$1'
+        $checkedLicenses += $skuId
+    }
+    try {
+        $licenses = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
+        $licenses.AddLicenses = $checkedLicenses
+        Set-EntraUserLicense -UserId $upn -AssignedLicenses $licenses
+        [System.Windows.Forms.MessageBox]::Show("Licenses updated!","Success")
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Error assigning licenses: $($_.Exception.Message)","Error")
+    }
+})
+
+# Make txtCurrentLicenses read-only and prevent typing or pasting
+$txtCurrentLicenses.ReadOnly = $true
+$txtCurrentLicenses.TabStop = $false
+$txtCurrentLicenses.Add_KeyPress({ $_.Handled = $true })
+$txtCurrentLicenses.Add_KeyDown({ $_.SuppressKeyPress = $true })
+$txtCurrentLicenses.Add_KeyUp({ $_.SuppressKeyPress = $true })
+$txtCurrentLicenses.Add_MouseDown({ $_.Handled = $true })
+
+# Make lstLicenseUserResults selection-only (no typing)
+$lstLicenseUserResults.SelectionMode = 'One'  # only allow single selection
+$lstLicenseUserResults.TabStop = $false
+$lstLicenseUserResults.Add_KeyPress({ $_.Handled = $true })
+$lstLicenseUserResults.Add_KeyDown({
+    # Only allow navigation keys (arrows, enter), block all others
+    $allowed = @([System.Windows.Forms.Keys]::Up, [System.Windows.Forms.Keys]::Down, [System.Windows.Forms.Keys]::Return)
+    if ($allowed -notcontains $_.KeyCode) { $_.SuppressKeyPress = $true }
 })
 
 ## initialises
