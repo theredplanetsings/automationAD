@@ -5,7 +5,7 @@ These PowerShell scripts automate common Active Directory tasks, including:
 - **Creating AD Users interactively or via GUI**
 - **Bulk-creating AD Users from a CSV file**
 - **Deleting AD Users**
-- **Assigning licenses to users**
+- **Assigning and managing licenses for users**
 
 > **Note:** These scripts require the Active Directory module. Make sure that RSAT (Remote Server Administration Tools) is installed and that you run these scripts with elevated rights appropriate for AD administration.
 
@@ -14,7 +14,7 @@ These PowerShell scripts automate common Active Directory tasks, including:
 ```
 automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
-├── interface.ps1              # All-in-one GUI for user creation, CSV import, and validation (non-modular)
+├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import (non-modular)
 ├── interfacemodular.ps1       # Modular GUI, imports ad-user.ps1 for user creation logic
 │   └── ad-user.ps1            # Contains the Create-ADUserFromForm function, only used by interfacemodular.ps1
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
@@ -31,7 +31,10 @@ automationAD
 - **Usage:** Run directly in PowerShell. Not interactive or GUI-based.
 
 #### `interface.ps1`
-- **Purpose:** All-in-one, non-modular Windows Forms GUI for creating users interactively or via CSV import. Contains all logic (form, validation, user creation) in a single file.
+- **Purpose:** All-in-one, non-modular Windows Forms GUI for:
+  - Creating users interactively or via CSV import
+  - Searching for and viewing existing users and their properties/groups
+  - Managing user licenses (search, view, assign available licenses)
 - **Usage:** Run directly for a self-contained GUI experience. Good for quick testing or single-file deployment.
 - **Note:** Not designed for code reuse or modularity.
 
@@ -59,20 +62,24 @@ automationAD
 
 - **Operating System:** Windows 10/11 or Windows Server.
 - **PowerShell:** Version 5.1 or later.
-- **Modules:** ActiveDirectory (provided by RSAT)
-- **Permissions:** Administrator privileges or an account with sufficient AD rights for creating, modifying, and deleting user objects.
+- **Modules:** ActiveDirectory (provided by RSAT), Microsoft.Entra (for license management)
+- **Permissions:** Administrator privileges or an account with sufficient AD and Entra rights for creating, modifying, deleting user objects, and managing licenses.
 
 ## Usage Overview
 
-### Interactive/GUI User Creation
-- Use `interface.ps1` for a self-contained GUI.
-- Use `interfacemodular.ps1` (with `ad-user.ps1`) for a modular, maintainable GUI.
+### Interactive/GUI User Creation, Search, and License Management
+- Use `interface.ps1` for a self-contained GUI that supports:
+  - Adding new users
+  - Searching for existing users and viewing their properties/groups
+  - Viewing and assigning licenses to users
+- Use `interfacemodular.ps1` (with `ad-user.ps1`) for a modular, maintainable GUI focused on user creation.
 
 ### Bulk User Creation from CSV
 - Prepare a CSV matching the format of `correctlyformatted.csv`.
 - Use the GUI scripts to import and validate the CSV, then create users.
 
 ### License Assignment
+- Use the license management page in `interface.ps1` for interactive assignment.
 - Use code snippets from `addLicenses.ps1` in your own scripts or automation tools as needed.
 
 ### User Deletion
@@ -83,6 +90,7 @@ automationAD
 - **OU Paths:** Update the OU path in scripts to match your AD configuration.
 - **Default Passwords:** Change hardcoded passwords before production use.
 - **Testing:** Always test in a lab environment before production.
+- **UI Controls:** The GUI disables typing in selection lists and license displays to prevent accidental edits; only selection is allowed where appropriate.
 
 ## Disclaimer
 
