@@ -14,9 +14,7 @@ These PowerShell scripts automate common Active Directory tasks, including:
 ```
 automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
-├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import (non-modular)
-├── interfacemodular.ps1       # Modular GUI, imports ad-user.ps1 for user creation logic
-│   └── ad-user.ps1            # Contains the Create-ADUserFromForm function, only used by interfacemodular.ps1
+├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
@@ -38,16 +36,8 @@ automationAD
 - **Usage:** Run directly for a self-contained GUI experience. Good for quick testing or single-file deployment.
 - **Note:** Not designed for code reuse or modularity.
 
-#### `interfacemodular.ps1` & `ad-user.ps1`
-- **Purpose:**
-  - `interfacemodular.ps1` provides the GUI and user interaction logic.
-  - `ad-user.ps1` contains the actual user creation function (`Create-ADUserFromForm`).
-- **How they work together:** `interfacemodular.ps1` imports `ad-user.ps1` and calls its function to perform user creation. This modular approach separates the interface from the business logic, making it easier to maintain and extend.
-- **Usage:** Run `interfacemodular.ps1` to launch the modular GUI. Do not run `ad-user.ps1` directly.
-- **Note:** `ad-user.ps1` is not a standalone script; it is a module used exclusively by `interfacemodular.ps1`.
-
 #### `addLicenses.ps1`
-- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline. Not a standalone program, but a collection of reusable script blocks for integration into larger automation workflows (similar to how `ad-user.ps1` is used for user creation logic).
+- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline. Not a standalone program, but a collection of reusable script blocks for integration into larger automation workflows.
 - **Usage:** Copy/paste or adapt code blocks as needed in your own automation scripts or GUIs.
 
 #### `userDeletion.ps1`
@@ -72,11 +62,10 @@ automationAD
   - Adding new users
   - Searching for existing users and viewing their properties/groups
   - Viewing and assigning licenses to users
-- Use `interfacemodular.ps1` (with `ad-user.ps1`) for a modular, maintainable GUI focused on user creation.
 
 ### Bulk User Creation from CSV
 - Prepare a CSV matching the format of `correctlyformatted.csv`.
-- Use the GUI scripts to import and validate the CSV, then create users.
+- Use the GUI script to import and validate the CSV, then create users.
 
 ### License Assignment
 - Use the license management page in `interface.ps1` for interactive assignment.
