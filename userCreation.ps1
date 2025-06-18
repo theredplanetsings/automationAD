@@ -59,8 +59,4 @@ Set-ADUser `
         st = $st
     }
 
-<<<<<<< HEAD
 # modify variables & attributes as needed for further testing
-=======
-# modify variables & attributes as needed for further testing
->>>>>>> 62e5133b25956499e00ff9b38f0861aef9d5e39b
