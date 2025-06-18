@@ -103,8 +103,9 @@ $form.MaximizeBox = $false
 ## update as needed, determines the columns required in the CSV file to autopopulate dropdowns.
 # must add additional dropdown sections to this program if you add more columns to the CSV.
 $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddress","Department","Title")
-$csvData = $null
-$csvError = $false
+# Use $script: scope for csvData and csvError so all handlers see the same values
+$script:csvData = $null
+$script:csvError = $false
 
 function Populate-DropdownsFromCsv {
     param($data)
@@ -127,7 +128,9 @@ function Populate-DropdownsFromCsv {
     $cmbTitle.Items.AddRange(($data | Select-Object -ExpandProperty Title | Sort-Object -Unique))
 }
 
-## page 1 controls, default page
+# =========================
+# Page 1 - Add User Controls
+# =========================
 # CSV select button
 $btnSelectCsv = New-Object System.Windows.Forms.Button
 $btnSelectCsv.Text = "Select CSV"
@@ -139,21 +142,21 @@ $btnSelectCsv.Add_Click({
     $openFileDialog.Title = "Select a CSV file for dropdown data"
     if ($openFileDialog.ShowDialog() -eq 'OK') {
         try {
-            $csvData = Import-Csv -Path $openFileDialog.FileName
-            $csvColumns = $csvData | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
+            $script:csvData = Import-Csv -Path $openFileDialog.FileName
+            $csvColumns = $script:csvData | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
             $missing = $requiredColumns | Where-Object { $_ -notin $csvColumns }
             if ($missing.Count -gt 0) {
                 [System.Windows.Forms.MessageBox]::Show("CSV missing columns: $($missing -join ', ')", "CSV Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-                $csvError = $true
+                $script:csvError = $true
             } else {
-                $csvError = $false
-                Populate-DropdownsFromCsv $csvData
+                $script:csvError = $false
+                Populate-DropdownsFromCsv $script:csvData
                 $cmbCompany.Items.Clear()
-                $cmbCompany.Items.AddRange(($csvData | Select-Object -ExpandProperty Company -Unique))
+                $cmbCompany.Items.AddRange(($script:csvData | Select-Object -ExpandProperty Company -Unique))
             }
         } catch {
             [System.Windows.Forms.MessageBox]::Show("Error reading CSV: $($_.Exception.Message)", "CSV Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-            $csvError = $true
+            $script:csvError = $true
         }
     }
 })
@@ -225,6 +228,35 @@ $cmbCompany.Width = 200
 $cmbCompany.DropDownStyle = 'DropDownList'
 $form.Controls.Add($cmbCompany)
 
+$btnBackToDashboardFromAdd = New-Object System.Windows.Forms.Button
+$btnBackToDashboardFromAdd.Text = "Back to Dashboard"
+$btnBackToDashboardFromAdd.Location = New-Object System.Drawing.Point(333,432)
+$btnBackToDashboardFromAdd.Width = 130
+$btnBackToDashboardFromAdd.Visible = $false
+$btnBackToDashboardFromAdd.Add_Click({ $ShowDashboard.Invoke() })
+$form.Controls.Add($btnBackToDashboardFromAdd)
+
+$btnNext = New-Object System.Windows.Forms.Button
+$btnNext.Text = "Next"
+$btnNext.Location = New-Object System.Drawing.Point(350,371)
+$btnNext.Width = 100
+$form.Controls.Add($btnNext)
+$btnNext.Add_Click({
+    $firstName = $txtFirstName.Text.Trim()
+    $lastName = $txtLastName.Text.Trim()
+    $username = $txtUsername.Text.Trim()
+    $company = $cmbCompany.SelectedItem
+    if (-not $firstName -or -not $lastName -or -not $username -or -not $company) {
+        [System.Windows.Forms.MessageBox]::Show("Please fill out all fields (First Name, Last Name, Username, Company) before continuing.", "Input Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    if ($script:csvError -or -not $script:csvData) {
+        [System.Windows.Forms.MessageBox]::Show("Please select a valid CSV file before continuing.", "CSV Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    $ShowPage2.Invoke()
+})
+
 # =========================
 # Username Auto-Population
 # =========================
@@ -241,16 +273,8 @@ $txtFirstName.Add_TextChanged({ Update-Username })
 $txtLastName.Add_TextChanged({ Update-Username })
 
 # =========================
-# Add User Navigation Buttons
+# Page 2 - Add User Controls
 # =========================
-# next button --> page 2
-$btnNext = New-Object System.Windows.Forms.Button
-$btnNext.Text = "Next"
-$btnNext.Location = New-Object System.Drawing.Point(350,375)
-$btnNext.Width = 100
-$form.Controls.Add($btnNext)
-
-# page 2, hidden by default
 # office
 $lblOffice = New-Object System.Windows.Forms.Label
 $lblOffice.Text = "Office:"
@@ -378,7 +402,47 @@ $txtTelephone.Add_KeyDown({
     }
 })
 
-## page 3 controls, summary and create user
+$btnNext2 = New-Object System.Windows.Forms.Button
+$btnNext2.Text = "Next"
+$btnNext2.Location = New-Object System.Drawing.Point(450,450)
+$btnNext2.Width = 100
+$btnNext2.Visible = $false
+$btnNext2.Add_Click({
+    $office = $cmbOffice.SelectedItem
+    $department = $cmbDepartment.SelectedItem
+    $title = $cmbTitle.SelectedItem
+    $street = $cmbStreetAddress.SelectedItem
+    $city = $cmbCity.SelectedItem
+    $state = $cmbState.SelectedItem
+    $postalCode = $cmbPostalCode.SelectedItem
+    $telephoneNumber = $txtTelephone.Text.Trim()
+
+    if (-not $office -or -not $department -or -not $title -or -not $street -or -not $city -or -not $state -or -not $postalCode -or -not $telephoneNumber) {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Please fill out all fields (Office, Department, Job Title, Street Address, City, State, Postal Code, Telephone Number) before continuing.",
+            "Input Error",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+        return
+    }
+    $ShowPage3.Invoke()
+})
+$form.Controls.Add($btnNext2)
+
+$btnBack = New-Object System.Windows.Forms.Button
+$btnBack.Text = "Back"
+$btnBack.Location = New-Object System.Drawing.Point(200,450)
+$btnBack.Width = 100
+$btnBack.Visible = $false
+$btnBack.Add_Click({
+    $ShowPage1.Invoke()
+})
+$form.Controls.Add($btnBack)
+
+# =========================
+# Page 3 - Add User Controls
+# =========================
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ReadOnly = $true
@@ -407,20 +471,10 @@ $btnBack2.Add_Click({
 })
 $form.Controls.Add($btnBack2)
 
-# back button from add user page to dashboard
-$btnBackToDashboardFromAdd = New-Object System.Windows.Forms.Button
-$btnBackToDashboardFromAdd.Text = "Back to Dashboard"
-$btnBackToDashboardFromAdd.Location = New-Object System.Drawing.Point(325,450)
-$btnBackToDashboardFromAdd.Width = 150
-$btnBackToDashboardFromAdd.Visible = $false
-$btnBackToDashboardFromAdd.Add_Click({
-    $ShowDashboard.Invoke()
-})
-$form.Controls.Add($btnBackToDashboardFromAdd)
-
 # =========================
 # Add User Page Switch Logic
 # =========================
+## contents of page 1 -- add user path
 $ShowPage1 = {
     $lblFirstName.Visible = $true
     $txtFirstName.Visible = $true
@@ -438,6 +492,8 @@ $ShowPage1 = {
     $btnGoToAddUser.Visible = $false
     $btnGoToLicenses.Visible = $false
 
+    $btnBack.Visible = $false
+    $btnNext2.Visible = $false
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
     $lblState.Visible = $false
@@ -455,13 +511,13 @@ $ShowPage1 = {
     $lblTelephone.Visible = $false
     $txtTelephone.Visible = $false
     $btnSubmit.Visible = $false
-    $btnBack.Visible = $false
 
+    $btnBack2.Visible = $false
     $txtSummary.Visible = $false
     $btnCreateUser.Visible = $false
-    $btnBack2.Visible = $false
 }
 
+## contents of page 2 -- add user path
 $ShowPage2 = {
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
@@ -471,8 +527,16 @@ $ShowPage2 = {
     $txtUsername.Visible = $false
     $lblCompany.Visible = $false
     $cmbCompany.Visible = $false
-    $btnNext.Visible = $false
     $btnSelectCsv.Visible = $false
+    $btnNext.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+    
+    $btnBack.Visible = $true
+    $btnNext2.Visible = $true
+
+    $btnBack2.Visible = $false
+    $txtSummary.Visible = $false
+    $btnCreateUser.Visible = $false  
 
     $lblOffice.Visible = $true
     $cmbOffice.Visible = $true
@@ -491,50 +555,15 @@ $ShowPage2 = {
     $lblTelephone.Visible = $true
     $txtTelephone.Visible = $true
     $btnSubmit.Visible = $true
-    $btnBack.Visible = $true
-
-    $txtSummary.Visible = $false
-    $btnCreateUser.Visible = $false
-    $btnBack2.Visible = $false
 }
 
-function Update-Summary {
-    $firstName = $txtFirstName.Text.Trim()
-    $lastName = $txtLastName.Text.Trim()
-    $fullName = "$firstName $lastName"
-    $username = $txtUsername.Text.Trim()
-    $domainname = "paradigmcos.com"
-    $userPrincipalName = "$username@$domainname"
-    $physicalDeliveryOfficeName = $cmbOffice.SelectedItem
-    $company = $cmbCompany.SelectedItem
-    $st = $cmbState.SelectedItem
-    $l = $cmbCity.SelectedItem
-    $postalCode = $cmbPostalCode.SelectedItem
-    $streetAddress = $cmbStreetAddress.SelectedItem
-    $department = $cmbDepartment.SelectedItem
-    $title = $cmbTitle.SelectedItem
-    $telephoneNumber = $txtTelephone.Text.Trim()
-    $mail = "$username@$domainname"
-
-    $summaryText = "User Account Summary:" + "`r`n"
-    $summaryText += "-------------------------" + "`r`n"
-    $summaryText += "Full Name:           $fullName`r`n"
-    $summaryText += "Username:            $username`r`n"
-    $summaryText += "UserPrincipalName:   $userPrincipalName`r`n"
-    $summaryText += "Email:               $mail`r`n"
-    $summaryText += "Office:              $physicalDeliveryOfficeName`r`n"
-    $summaryText += "Company:             $company`r`n"
-    $summaryText += "State:               $st`r`n"
-    $summaryText += "City:                $l`r`n"
-    $summaryText += "Postal Code:         $postalCode`r`n"
-    $summaryText += "Street Address:      $streetAddress`r`n"
-    $summaryText += "Department:          $department`r`n"
-    $summaryText += "Job Title:           $title`r`n"
-    $summaryText += "Telephone:           $telephoneNumber`r`n"
-    $txtSummary.Text = $summaryText
-}
-
+## contents of page 3 -- add user path
 $ShowPage3 = {
+    $txtSummary.Visible = $true
+    $btnCreateUser.Visible = $true
+    $btnBack2.Visible = $true
+    Update-Summary
+
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
     $lblLastName.Visible = $false
@@ -543,8 +572,13 @@ $ShowPage3 = {
     $txtUsername.Visible = $false
     $lblCompany.Visible = $false
     $cmbCompany.Visible = $false
-    $btnNext.Visible = $false
     $btnSelectCsv.Visible = $false
+
+    $btnNext.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+
+    $btnBack.Visible = $false
+    $btnNext2.Visible = $false
 
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
@@ -563,185 +597,7 @@ $ShowPage3 = {
     $lblTelephone.Visible = $false
     $txtTelephone.Visible = $false
     $btnSubmit.Visible = $false
-    $btnBack.Visible = $false
-
-    $txtSummary.Visible = $true
-    $btnCreateUser.Visible = $true
-    $btnBack2.Visible = $true
-
-    Update-Summary
 }
-
-# =========================
-# Add User Page Buttons
-# =========================
-# page 2, hidden by default
-# office
-$lblOffice = New-Object System.Windows.Forms.Label
-$lblOffice.Text = "Office:"
-$lblOffice.Location = New-Object System.Drawing.Point(175,60)
-$lblOffice.AutoSize = $true
-$lblOffice.Visible = $false
-$form.Controls.Add($lblOffice)
-
-$cmbOffice = New-Object System.Windows.Forms.ComboBox
-$cmbOffice.Location = New-Object System.Drawing.Point(300,58)
-$cmbOffice.Width = 200
-$cmbOffice.DropDownStyle = 'DropDownList'
-$cmbOffice.Visible = $false
-$form.Controls.Add($cmbOffice)
-
-# dept
-$lblDepartment = New-Object System.Windows.Forms.Label
-$lblDepartment.Text = "Department:"
-$lblDepartment.Location = New-Object System.Drawing.Point(175,100)
-$lblDepartment.AutoSize = $true
-$lblDepartment.Visible = $false
-$form.Controls.Add($lblDepartment)
-
-$cmbDepartment = New-Object System.Windows.Forms.ComboBox
-$cmbDepartment.Location = New-Object System.Drawing.Point(300,98)
-$cmbDepartment.Width = 200
-$cmbDepartment.DropDownStyle = 'DropDownList'
-$cmbDepartment.Visible = $false
-$form.Controls.Add($cmbDepartment)
-
-# job title
-$lblTitle = New-Object System.Windows.Forms.Label
-$lblTitle.Text = "Job Title:"
-$lblTitle.Location = New-Object System.Drawing.Point(175,140)
-$lblTitle.AutoSize = $true
-$lblTitle.Visible = $false
-$form.Controls.Add($lblTitle)
-
-$cmbTitle = New-Object System.Windows.Forms.ComboBox
-$cmbTitle.Location = New-Object System.Drawing.Point(300,138)
-$cmbTitle.Width = 200
-$cmbTitle.DropDownStyle = 'DropDownList'
-$cmbTitle.Visible = $false
-$form.Controls.Add($cmbTitle)
-
-# street address
-$lblStreet = New-Object System.Windows.Forms.Label
-$lblStreet.Text = "Street Address:"
-$lblStreet.Location = New-Object System.Drawing.Point(175,180)
-$lblStreet.AutoSize = $true
-$lblStreet.Visible = $false
-$form.Controls.Add($lblStreet)
-
-$cmbStreetAddress = New-Object System.Windows.Forms.ComboBox
-$cmbStreetAddress.Location = New-Object System.Drawing.Point(300,178)
-$cmbStreetAddress.Width = 200
-$cmbStreetAddress.DropDownStyle = 'DropDownList'
-$cmbStreetAddress.Visible = $false
-$form.Controls.Add($cmbStreetAddress)
-
-# city
-$lblCity = New-Object System.Windows.Forms.Label
-$lblCity.Text = "City:"
-$lblCity.Location = New-Object System.Drawing.Point(175,220)
-$lblCity.AutoSize = $true
-$lblCity.Visible = $false
-$form.Controls.Add($lblCity)
-
-$cmbCity = New-Object System.Windows.Forms.ComboBox
-$cmbCity.Location = New-Object System.Drawing.Point(300,218)
-$cmbCity.Width = 200
-$cmbCity.DropDownStyle = 'DropDownList'
-$cmbCity.Visible = $false
-$form.Controls.Add($cmbCity)
-
-# state
-$lblState = New-Object System.Windows.Forms.Label
-$lblState.Text = "State:"
-$lblState.Location = New-Object System.Drawing.Point(175,260)
-$lblState.AutoSize = $true
-$lblState.Visible = $false
-$form.Controls.Add($lblState)
-
-$cmbState = New-Object System.Windows.Forms.ComboBox
-$cmbState.Location = New-Object System.Drawing.Point(300,258)
-$cmbState.Width = 200
-$cmbState.DropDownStyle = 'DropDownList'
-$cmbState.Visible = $false
-$form.Controls.Add($cmbState)
-
-# post code
-$lblPostalCode = New-Object System.Windows.Forms.Label
-$lblPostalCode.Text = "Postal Code:"
-$lblPostalCode.Location = New-Object System.Drawing.Point(175,300)
-$lblPostalCode.AutoSize = $true
-$lblPostalCode.Visible = $false
-$form.Controls.Add($lblPostalCode)
-
-$cmbPostalCode = New-Object System.Windows.Forms.ComboBox
-$cmbPostalCode.Location = New-Object System.Drawing.Point(300,298)
-$cmbPostalCode.Width = 200
-$cmbPostalCode.DropDownStyle = 'DropDownList'
-$cmbPostalCode.Visible = $false
-$form.Controls.Add($cmbPostalCode)
-
-# telephone number, manually entered
-$lblTelephone = New-Object System.Windows.Forms.Label
-$lblTelephone.Text = "Telephone Number:"
-$lblTelephone.Location = New-Object System.Drawing.Point(175,340)
-$lblTelephone.AutoSize = $true
-$lblTelephone.Visible = $false
-$form.Controls.Add($lblTelephone)
-
-$txtTelephone = New-Object System.Windows.Forms.TextBox
-$txtTelephone.Location = New-Object System.Drawing.Point(300,338)
-$txtTelephone.Width = 200
-$txtTelephone.ShortcutsEnabled = $true 
-$txtTelephone.Visible = $false
-$form.Controls.Add($txtTelephone)
-$txtTelephone.Add_KeyDown({
-    param($sender, $e)
-    if ($e.Control -and $e.KeyCode -eq [System.Windows.Forms.Keys]::A) {
-        $sender.SelectAll()
-        $e.SuppressKeyPress = $true
-    }
-})
-
-## page 3 controls, summary and create user
-$txtSummary = New-Object System.Windows.Forms.TextBox
-$txtSummary.Multiline = $true
-$txtSummary.ReadOnly = $true
-$txtSummary.Location = New-Object System.Drawing.Point(175,60)
-$txtSummary.Size = New-Object System.Drawing.Size(425, 350)
-$txtSummary.ScrollBars = 'Vertical'
-$txtSummary.Font = New-Object System.Drawing.Font("Consolas",10)
-$txtSummary.Visible = $false
-$form.Controls.Add($txtSummary)
-
-$btnCreateUser = New-Object System.Windows.Forms.Button
-$btnCreateUser.Text = "Create User"
-$btnCreateUser.Location = New-Object System.Drawing.Point(500,450)
-$btnCreateUser.Width = 100
-$btnCreateUser.Visible = $false
-$btnCreateUser.Add_Click({ Create-ADUserFromForm })
-$form.Controls.Add($btnCreateUser)
-
-$btnBack2 = New-Object System.Windows.Forms.Button
-$btnBack2.Text = "Back"
-$btnBack2.Location = New-Object System.Drawing.Point(200,450)
-$btnBack2.Width = 100
-$btnBack2.Visible = $false
-$btnBack2.Add_Click({
-    $ShowPage2.Invoke()
-})
-$form.Controls.Add($btnBack2)
-
-# back button from add user page to dashboard
-$btnBackToDashboardFromAdd = New-Object System.Windows.Forms.Button
-$btnBackToDashboardFromAdd.Text = "Back to Dashboard"
-$btnBackToDashboardFromAdd.Location = New-Object System.Drawing.Point(325,450)
-$btnBackToDashboardFromAdd.Width = 150
-$btnBackToDashboardFromAdd.Visible = $false
-$btnBackToDashboardFromAdd.Add_Click({
-    $ShowDashboard.Invoke()
-})
-$form.Controls.Add($btnBackToDashboardFromAdd)
 
 # =========================
 # Dashboard Controls
@@ -777,26 +633,26 @@ $form.Controls.Add($btnGoToLicenses)
 # =========================
 $lblSearch = New-Object System.Windows.Forms.Label
 $lblSearch.Text = "Search for User (Username, First, or Last Name):"
-$lblSearch.Location = New-Object System.Drawing.Point(200,100)
+$lblSearch.Location = New-Object System.Drawing.Point(200,50)
 $lblSearch.AutoSize = $true
 $lblSearch.Visible = $false
 $form.Controls.Add($lblSearch)
 
 $txtSearch = New-Object System.Windows.Forms.TextBox
-$txtSearch.Location = New-Object System.Drawing.Point(200,130)
+$txtSearch.Location = New-Object System.Drawing.Point(200,70)
 $txtSearch.Width = 250
 $txtSearch.Visible = $false
 $form.Controls.Add($txtSearch)
 
 $btnSearchUser = New-Object System.Windows.Forms.Button
 $btnSearchUser.Text = "Search"
-$btnSearchUser.Location = New-Object System.Drawing.Point(470,128)
+$btnSearchUser.Location = New-Object System.Drawing.Point(470,68)
 $btnSearchUser.Width = 80
 $btnSearchUser.Visible = $false
 $form.Controls.Add($btnSearchUser)
 
 $lstSearchResults = New-Object System.Windows.Forms.ListBox
-$lstSearchResults.Location = New-Object System.Drawing.Point(200,170)
+$lstSearchResults.Location = New-Object System.Drawing.Point(200,100)
 $lstSearchResults.Size = New-Object System.Drawing.Size(350,150)
 $lstSearchResults.Visible = $false
 $form.Controls.Add($lstSearchResults)
@@ -804,7 +660,7 @@ $form.Controls.Add($lstSearchResults)
 $txtUserSummary = New-Object System.Windows.Forms.TextBox
 $txtUserSummary.Multiline = $true
 $txtUserSummary.ReadOnly = $true
-$txtUserSummary.Location = New-Object System.Drawing.Point(200,340)
+$txtUserSummary.Location = New-Object System.Drawing.Point(200,260)
 $txtUserSummary.Size = New-Object System.Drawing.Size(350,150)
 $txtUserSummary.ScrollBars = 'Vertical'
 $txtUserSummary.Font = New-Object System.Drawing.Font("Consolas",10)
@@ -813,7 +669,7 @@ $form.Controls.Add($txtUserSummary)
 
 $btnBackToDashboard = New-Object System.Windows.Forms.Button
 $btnBackToDashboard.Text = "Back to Dashboard"
-$btnBackToDashboard.Location = New-Object System.Drawing.Point(300,510)
+$btnBackToDashboard.Location = New-Object System.Drawing.Point(300,425)
 $btnBackToDashboard.Width = 150
 $btnBackToDashboard.Visible = $false
 $btnBackToDashboard.Add_Click({ $ShowDashboard.Invoke() })
