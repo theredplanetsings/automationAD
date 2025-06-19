@@ -253,7 +253,6 @@ $btnNext.Add_Click({
     }
     $ShowPage2.Invoke()
 })
-
 # =========================
 # Username Auto-Population
 # =========================
