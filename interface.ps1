@@ -4,7 +4,6 @@
 ============================================
 #>
 
-
 # =========================
 # Imports and Initial Setup
 # =========================
@@ -29,7 +28,6 @@ function Create-ADUserFromForm {
     $domainname = "paradigmcos.com"
     $userPrincipalName = "$username@$domainname"
     $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
-
     # retrieve values from dropdowns and textboxes
     $physicalDeliveryOfficeName = $cmbOffice.SelectedItem
     $company = $cmbCompany.SelectedItem
@@ -43,7 +41,6 @@ function Create-ADUserFromForm {
     $mail = "$username@$domainname"
     $mailNickname = $username
     $proxyAddresses = "smtp:$mail"
-    
     try {
         # creating the new user with starter properties
         New-ADUser  `
