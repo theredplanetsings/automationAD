@@ -104,7 +104,6 @@ $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddre
 # Use $script: scope for csvData and csvError so all handlers see the same values
 $script:csvData = $null
 $script:csvError = $false
-
 function Populate-DropdownsFromCsv {
     param($data)
     $cmbOffice.Items.Clear()
