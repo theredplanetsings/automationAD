@@ -915,7 +915,6 @@ $lstLicenseUserResults.Add_SelectedIndexChanged({
         }
     }
 })
-
 $btnAssignLicenses.Add_Click({
     if (-not $lstLicenseUserResults.SelectedItem) {
         [System.Windows.Forms.MessageBox]::Show("Select a user first.","Input Error")
@@ -957,10 +956,8 @@ $lstLicenseUserResults.Add_KeyDown({
     $allowed = @([System.Windows.Forms.Keys]::Up, [System.Windows.Forms.Keys]::Down, [System.Windows.Forms.Keys]::Return)
     if ($allowed -notcontains $_.KeyCode) { $_.SuppressKeyPress = $true }
 })
-
 # =========================
 # Initial Page Load
 # =========================
 $ShowDashboard.Invoke()
-
 [void]$form.ShowDialog()
