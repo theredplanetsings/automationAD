@@ -253,6 +253,7 @@ $btnNext.Add_Click({
     }
     $ShowPage2.Invoke()
 })
+
 # =========================
 # Username Auto-Population
 # =========================
@@ -794,7 +795,6 @@ $ShowDashboard = {
     $clbAvailableLicenses.Visible = $false
     $btnAssignLicenses.Visible = $false
 }
-
 $ShowUserSearch = {
     $btnGoToSearch.Visible = $false
     $btnGoToAddUser.Visible = $false
@@ -817,7 +817,6 @@ $ShowUserSearch = {
     $btnNext.Visible = $false
     $btnSelectCsv.Visible = $false
 }
-
 $ShowLicensesPage = {
     $btnGoToSearch.Visible = $false
     $btnGoToAddUser.Visible = $false
@@ -851,7 +850,6 @@ $ShowLicensesPage = {
     $btnSelectCsv.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
 }
-
 $btnGoToLicenses.Add_Click({ $ShowLicensesPage.Invoke() })
 
 # =========================
@@ -878,7 +876,6 @@ $btnSearchUser.Add_Click({
         $lstSearchResults.Items.Add("Error searching AD: $($_.Exception.Message)")
     }
 })
-
 $lstSearchResults.Add_SelectedIndexChanged({
     $txtUserSummary.Text = ""
     if ($lstSearchResults.SelectedItem -and -not ($lstSearchResults.SelectedItem -like "No users found.*")) {
