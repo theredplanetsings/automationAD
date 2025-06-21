@@ -17,7 +17,6 @@ if ($confirm -ne "Y") {
     Write-Host "Operation cancelled."
     exit
 }
-
 # removes user from all group memberships
 $groups = Get-ADPrincipalGroupMembership $user | Select-Object -ExpandProperty Name
 if ($groups) {
@@ -26,7 +25,6 @@ if ($groups) {
         Write-Host "Removed $username from group $grp"
     }
 }
-
 # removes the user from Active Directory
 Remove-ADUser -Identity $user -Confirm
 #debug statement confirming deletion
