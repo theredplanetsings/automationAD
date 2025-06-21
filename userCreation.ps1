@@ -58,5 +58,4 @@ Set-ADUser `
         l = $l
         st = $st
     }
-
 # modify variables & attributes as needed for further testing
