@@ -54,7 +54,6 @@ function Create-ADUserFromForm {
             -ChangePasswordAtLogon $true `
             -Path "OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local" `
             -Enabled $true
-
         # sets additional attributes
         Set-ADUser `
             -Identity $username `
@@ -74,7 +73,6 @@ function Create-ADUserFromForm {
                 l = $l
                 st = $st
             }
-        
         [System.Windows.Forms.MessageBox]::Show("User created successfully!","Success")
         $ShowPage1.Invoke()
         $form.Show()
