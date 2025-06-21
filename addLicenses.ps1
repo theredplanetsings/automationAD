@@ -121,8 +121,6 @@ foreach ($license in $sourceUserLicenses) {
 }
 #>
 
-
-
 <#
 ## remove user's licenses
 # gets user details
