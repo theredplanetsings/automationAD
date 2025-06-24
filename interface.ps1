@@ -79,6 +79,8 @@ function Create-ADUserFromForm {
     }
 }
 
+
+
 # =========================
 # Form Initialization
 # =========================
@@ -90,6 +92,8 @@ $form.MaximumSize = New-Object System.Drawing.Size(800,600)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
+
+
 
 # =========================
 # CSV Import/Validation
@@ -120,6 +124,9 @@ function Populate-DropdownsFromCsv {
     $cmbDepartment.Items.AddRange(($data | Select-Object -ExpandProperty Department | Sort-Object -Unique))
     $cmbTitle.Items.AddRange(($data | Select-Object -ExpandProperty Title | Sort-Object -Unique))
 }
+
+
+
 
 # =========================
 # Page 1 - Add User Controls
@@ -250,6 +257,9 @@ $btnNext.Add_Click({
     $ShowPage2.Invoke()
 })
 
+
+
+
 # =========================
 # Username Auto-Population
 # =========================
@@ -264,6 +274,9 @@ function Update-Username {
 }
 $txtFirstName.Add_TextChanged({ Update-Username })
 $txtLastName.Add_TextChanged({ Update-Username })
+
+
+
 
 # =========================
 # Page 2 - Add User Controls
@@ -433,6 +446,9 @@ $btnBack.Add_Click({
 })
 $form.Controls.Add($btnBack)
 
+
+
+
 # =========================
 # Page 3 - Add User Controls
 # =========================
@@ -463,6 +479,9 @@ $btnBack2.Add_Click({
     $ShowPage2.Invoke()
 })
 $form.Controls.Add($btnBack2)
+
+
+
 
 # =========================
 # Add User Page Switch Logic
@@ -592,6 +611,10 @@ $ShowPage3 = {
     $btnSubmit.Visible = $false
 }
 
+
+
+
+
 # =========================
 # Dashboard Controls
 # =========================
@@ -620,6 +643,10 @@ $btnGoToLicenses.Width = 200
 $btnGoToLicenses.Height = 50
 $btnGoToLicenses.Visible = $true
 $form.Controls.Add($btnGoToLicenses)
+
+
+
+
 
 # =========================
 # User Search/Summary Page Controls
@@ -667,6 +694,10 @@ $btnBackToDashboard.Width = 150
 $btnBackToDashboard.Visible = $false
 $btnBackToDashboard.Add_Click({ $ShowDashboard.Invoke() })
 $form.Controls.Add($btnBackToDashboard)
+
+
+
+
 
 # =========================
 # License Management Page Controls
@@ -753,6 +784,13 @@ $btnBackToDashboardFromLicenses.Width = 130
 $btnBackToDashboardFromLicenses.Visible = $false
 $btnBackToDashboardFromLicenses.Add_Click({ $ShowDashboard.Invoke() })
 $form.Controls.Add($btnBackToDashboardFromLicenses)
+
+
+
+
+
+
+
 
 # =========================
 # Page Switch Logic
@@ -848,6 +886,11 @@ $ShowLicensesPage = {
 }
 $btnGoToLicenses.Add_Click({ $ShowLicensesPage.Invoke() })
 
+
+
+
+
+
 # =========================
 # User Search Logic
 # =========================
@@ -887,6 +930,12 @@ $lstSearchResults.Add_SelectedIndexChanged({
         }
     }
 })
+
+
+
+
+
+
 
 # =========================
 # License Management Logic
