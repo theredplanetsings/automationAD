@@ -483,7 +483,30 @@ $btnBack2.Add_Click({
 $form.Controls.Add($btnBack2)
 
 
+# =========================
+# Summary Update Function
+# =========================
+function Update-Summary {
+    $summary = @"
+User Summary:
+=============
+Name: $($txtFirstName.Text) $($txtLastName.Text)
+Username: $($txtUsername.Text)
+Company: $($cmbCompany.SelectedItem)
+Office: $($cmbOffice.SelectedItem)
+Department: $($cmbDepartment.SelectedItem)
+Title: $($cmbTitle.SelectedItem)
+Street Address: $($cmbStreetAddress.SelectedItem)
+City: $($cmbCity.SelectedItem)
+State: $($cmbState.SelectedItem)
+Postal Code: $($cmbPostalCode.SelectedItem)
+Telephone: $($txtTelephone.Text)
+Email: $($txtUsername.Text)@paradigmcos.com
 
+Please review the information above and click 'Create User' to proceed.
+"@
+    $txtSummary.Text = $summary
+}
 
 # =========================
 # Add User Page Switch Logic
@@ -524,7 +547,7 @@ $ShowPage1 = {
     $cmbTitle.Visible = $false
     $lblTelephone.Visible = $false
     $txtTelephone.Visible = $false
-    $btnSubmit.Visible = $false
+    #$btnSubmit.Visible = $false
 
     $btnBack2.Visible = $false
     $txtSummary.Visible = $false
@@ -568,7 +591,7 @@ $ShowPage2 = {
     $cmbPostalCode.Visible = $true
     $lblTelephone.Visible = $true
     $txtTelephone.Visible = $true
-    $btnSubmit.Visible = $true
+    #$btnSubmit.Visible = $true
 }
 
 ## contents of page 3 -- add user path
@@ -610,7 +633,7 @@ $ShowPage3 = {
     $cmbPostalCode.Visible = $false
     $lblTelephone.Visible = $false
     $txtTelephone.Visible = $false
-    $btnSubmit.Visible = $false
+    #$btnSubmit.Visible = $false
 }
 
 
@@ -760,7 +783,6 @@ $clbAvailableLicenses.Size = New-Object System.Drawing.Size(350,95)
 $clbAvailableLicenses.Visible = $false
 $form.Controls.Add($clbAvailableLicenses)
 
-$clbAvailableLicenses.SelectionMode = 'MultiSimple'
 $clbAvailableLicenses.IntegralHeight = $false
 $clbAvailableLicenses.TabStop = $false
 $clbAvailableLicenses.AllowDrop = $false
