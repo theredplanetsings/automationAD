@@ -28,20 +28,56 @@ function Create-ADUserFromForm {
     $domainname = "paradigmcos.com"
     $userPrincipalName = "$username@$domainname"
     $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
-    # retrieve values from dropdowns and textboxes
-    $physicalDeliveryOfficeName = $cmbOffice.SelectedItem
-    $company = $cmbCompany.SelectedItem
-    $st = $cmbState.SelectedItem
-    $l = $cmbCity.SelectedItem
-    $postalCode = $cmbPostalCode.SelectedItem
-    $streetAddress = $cmbStreetAddress.SelectedItem
-    $department = $cmbDepartment.SelectedItem
-    $title = $cmbTitle.SelectedItem
-    $telephoneNumber = $txtTelephone.Text.Trim()
+    
+    # Check if username already exists
+    try {
+        $existingUser = Get-ADUser -Filter "SamAccountName -eq '$username'" -ErrorAction SilentlyContinue
+        if ($existingUser) {
+            [System.Windows.Forms.MessageBox]::Show("Username '$username' already exists. Please choose a different username.", "Username Conflict", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            return
+        }
+    } catch {
+        # Continue if user doesn't exist
+    }
+    
+    # Check if UPN already exists
+    try {
+        $existingUPN = Get-ADUser -Filter "UserPrincipalName -eq '$userPrincipalName'" -ErrorAction SilentlyContinue
+        if ($existingUPN) {
+            [System.Windows.Forms.MessageBox]::Show("User Principal Name '$userPrincipalName' already exists. Please choose a different username.", "UPN Conflict", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            return
+        }
+    } catch {
+        # Continue if UPN doesn't exist
+    }
+    
+    # retrieve values from dropdowns and textboxes - convert to strings
+    $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
+    $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
+    $st = if ($cmbState.SelectedItem) { $cmbState.SelectedItem.ToString() } else { "" }
+    $l = if ($cmbCity.SelectedItem) { $cmbCity.SelectedItem.ToString() } else { "" }
+    $postalCode = if ($cmbPostalCode.SelectedItem) { $cmbPostalCode.SelectedItem.ToString() } else { "" }
+    $streetAddress = if ($cmbStreetAddress.SelectedItem) { $cmbStreetAddress.SelectedItem.ToString() } else { "" }
+    $department = if ($cmbDepartment.SelectedItem) { $cmbDepartment.SelectedItem.ToString() } else { "" }
+    $title = if ($cmbTitle.SelectedItem) { $cmbTitle.SelectedItem.ToString() } else { "" }
+    $telephoneNum = $txtTelephone.Text.Trim()
     $mail = "$username@$domainname"
     $mailNickname = $username
     $proxyAddresses = "smtp:$mail"
-    try {
+    
+    # Debug output - remove this after testing
+    Write-Host "Debug Values:"
+    Write-Host "Office: '$physicalDeliveryOfficeName'"
+    Write-Host "Company: '$company'"
+    Write-Host "Department: '$department'"
+    Write-Host "Title: '$title'"
+    Write-Host "Street: '$streetAddress'"
+    Write-Host "City: '$l'"
+    Write-Host "State: '$st'"
+    Write-Host "Postal: '$postalCode'"
+    Write-Host "Phone: '$telephoneNum'"
+    
+try {
         # creating the new user with starter properties
         New-ADUser  `
             -Name $fullName `
@@ -54,25 +90,27 @@ function Create-ADUserFromForm {
             -ChangePasswordAtLogon $true `
             -Path "OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local" `
             -Enabled $true
+        
+        # Only set attributes that have values
+        $attributesToSet = @{}
+        if ($streetAddress) { $attributesToSet.streetAddress = $streetAddress }
+        if ($postalCode) { $attributesToSet.postalCode = $postalCode }
+        if ($mailNickname) { $attributesToSet.mailNickname = $mailNickname }
+        if ($proxyAddresses) { $attributesToSet.proxyAddresses = $proxyAddresses }
+        if ($title) { $attributesToSet.title = $title }
+        if ($department) { $attributesToSet.department = $department }
+        if ($company) { $attributesToSet.company = $company }
+        if ($l) { $attributesToSet.l = $l }
+        if ($st) { $attributesToSet.st = $st }
+        
         # sets additional attributes
         Set-ADUser `
             -Identity $username `
             -Office $physicalDeliveryOfficeName `
-            -OfficePhone $telephoneNumber `
+            -OfficePhone $telephoneNum `
             -EmailAddress $mail `
-            -Replace @{
-                streetAddress = $streetAddress
-                postalCode = $postalCode
-                telephoneNumber = $telephoneNumber
-                mail = $mail
-                mailNickname = $mailNickname
-                proxyAddresses = $proxyAddresses
-                title = $title
-                department = $department
-                company = $company
-                l = $l
-                st = $st
-            }
+            -Replace $attributesToSet
+            
         [System.Windows.Forms.MessageBox]::Show("User created successfully!","Success")
         $ShowPage1.Invoke()
         $form.Show()
@@ -423,9 +461,9 @@ $btnNext2.Add_Click({
     $city = $cmbCity.SelectedItem
     $state = $cmbState.SelectedItem
     $postalCode = $cmbPostalCode.SelectedItem
-    $telephoneNumber = $txtTelephone.Text.Trim()
+    $telephoneNum = $txtTelephone.Text.Trim()
 
-    if (-not $office -or -not $department -or -not $title -or -not $street -or -not $city -or -not $state -or -not $postalCode -or -not $telephoneNumber) {
+    if (-not $office -or -not $department -or -not $title -or -not $street -or -not $city -or -not $state -or -not $postalCode -or -not $telephoneNum) {
         [System.Windows.Forms.MessageBox]::Show(
             "Please fill out all fields (Office, Department, Job Title, Street Address, City, State, Postal Code, Telephone Number) before continuing.",
             "Input Error",
@@ -507,6 +545,7 @@ Please review the information above and click 'Create User' to proceed.
 "@
     $txtSummary.Text = $summary
 }
+
 
 # =========================
 # Add User Page Switch Logic
