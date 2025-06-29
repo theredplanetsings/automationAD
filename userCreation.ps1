@@ -20,7 +20,6 @@ $title = "IT Specialist"
 $department = "IT"
 $l = "CityName" # City
 $st = "VA" # state (abbreviated)
-
 # creating the new user with starter properties
 New-ADUser  `
     -Name $displayname `
@@ -33,7 +32,7 @@ New-ADUser  `
     -ChangePasswordAtLogon $true `
     -Path "OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local" `
     -Enabled $true
-
+    
 # assigning the user to security groups
 Add-ADGroupMember -Identity "VPN Users" -Members $newUsername
 # (To remove a user from a group, you can use
