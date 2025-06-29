@@ -19,7 +19,7 @@ automationAD
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
-└── README.md                  # self-explanatory
+└── README.md # self-explanatory
 ```
 
 ### Script Details & Differences
