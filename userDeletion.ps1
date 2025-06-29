@@ -17,6 +17,7 @@ if ($confirm -ne "Y") {
     Write-Host "Operation cancelled."
     exit
 }
+
 # removes user from all group memberships
 $groups = Get-ADPrincipalGroupMembership $user | Select-Object -ExpandProperty Name
 if ($groups) {
