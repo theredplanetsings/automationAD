@@ -20,7 +20,6 @@ $licenses | Format-List
 
 #  the user already has some licenses and you only intend to add the specified license, use -AddLicenses
 Set-MsolUserLicense -UserPrincipalName $userPrincipalName -AddLicenses $licenseToAdd
-
 # verify if the license assignment by retrieving user's licenses
 Get-MsolUser -UserPrincipalName $userPrincipalName | Select-Object DisplayName, Licenses
 #>
