@@ -1,7 +1,6 @@
 # Active Directory Automation Tools
 
 These PowerShell scripts automate common Active Directory tasks, including:
-
 - **Creating AD Users interactively or via GUI**
 - **Bulk-creating AD Users from a CSV file**
 - **Deleting AD Users**
