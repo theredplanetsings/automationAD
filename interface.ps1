@@ -76,6 +76,13 @@ function Create-ADUserFromForm {
     Write-Host "Postal: '$postalCode'"
     Write-Host "Phone: '$telephoneNum'"
     
+    # Validate OU selection
+    $ouPath = Get-FullOUPath
+    if (-not $ouPath) {
+        [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+
 try {
         # creating the new user with starter properties
         New-ADUser  `
@@ -87,7 +94,7 @@ try {
             -SamAccountName $username `
             -UserPrincipalName $userPrincipalName `
             -ChangePasswordAtLogon $true `
-            -Path "OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local" `
+            -Path $ouPath `
             -Enabled $true
         
         # Only set attributes that have values
@@ -480,11 +487,41 @@ $form.Controls.Add($btnBack)
 # =========================
 # Page 3 - Add User Controls
 # =========================
+# OU Selection
+$lblOU = New-Object System.Windows.Forms.Label
+$lblOU.Text = "Organizational Unit:"
+$lblOU.Location = New-Object System.Drawing.Point(175,60)
+$lblOU.AutoSize = $true
+$lblOU.Visible = $false
+$form.Controls.Add($lblOU)
+
+$cmbOU = New-Object System.Windows.Forms.ComboBox
+$cmbOU.Location = New-Object System.Drawing.Point(300,58)
+$cmbOU.Width = 300
+$cmbOU.DropDownStyle = 'DropDownList'
+$cmbOU.Visible = $false
+$form.Controls.Add($cmbOU)
+
+# Sub-OU Selection (appears when main OU has sub-directories)
+$lblSubOU = New-Object System.Windows.Forms.Label
+$lblSubOU.Text = "Sub-Directory:"
+$lblSubOU.Location = New-Object System.Drawing.Point(175,100)
+$lblSubOU.AutoSize = $true
+$lblSubOU.Visible = $false
+$form.Controls.Add($lblSubOU)
+
+$cmbSubOU = New-Object System.Windows.Forms.ComboBox
+$cmbSubOU.Location = New-Object System.Drawing.Point(300,98)
+$cmbSubOU.Width = 300
+$cmbSubOU.DropDownStyle = 'DropDownList'
+$cmbSubOU.Visible = $false
+$form.Controls.Add($cmbSubOU)
+
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ReadOnly = $true
-$txtSummary.Location = New-Object System.Drawing.Point(175,60)
-$txtSummary.Size = New-Object System.Drawing.Size(425, 350)
+$txtSummary.Location = New-Object System.Drawing.Point(175,140)
+$txtSummary.Size = New-Object System.Drawing.Size(425, 270)
 $txtSummary.ScrollBars = 'Vertical'
 $txtSummary.Font = New-Object System.Drawing.Font("Consolas",10)
 $txtSummary.Visible = $false
@@ -510,9 +547,79 @@ $form.Controls.Add($btnBack2)
 
 
 # =========================
+# OU Management Functions
+# =========================
+function Initialize-OUDropdowns {
+    $cmbOU.Items.Clear()
+    $cmbSubOU.Items.Clear()
+    
+    # Add main OU options
+    $cmbOU.Items.Add("Users")
+    $cmbOU.Items.Add("Service Accounts")
+    $cmbOU.Items.Add("PDC-CONSTRUCTION\USERS")
+    $cmbOU.Items.Add("PDC-HQ\USERS")
+    $cmbOU.Items.Add("PDC-SERVICES\USERS")
+}
+
+function Update-SubOUDropdown {
+    $cmbSubOU.Items.Clear()
+    $selectedOU = $cmbOU.SelectedItem
+    
+    # Show/hide sub-OU dropdown based on selection
+    if ($selectedOU -eq "PDC-CONSTRUCTION\USERS" -or $selectedOU -eq "PDC-HQ\USERS" -or $selectedOU -eq "PDC-SERVICES\USERS") {
+        $lblSubOU.Visible = $true
+        $cmbSubOU.Visible = $true
+        $cmbSubOU.Items.Add("External")
+        $cmbSubOU.Items.Add("Internal")
+    } else {
+        $lblSubOU.Visible = $false
+        $cmbSubOU.Visible = $false
+    }
+}
+
+function Get-FullOUPath {
+    $selectedOU = $cmbOU.SelectedItem
+    $selectedSubOU = $cmbSubOU.SelectedItem
+    
+    switch ($selectedOU) {
+        "Users" { return "OU=Users,DC=paradigmcos,DC=local" }
+        "Service Accounts" { return "OU=Service Accounts,DC=paradigmcos,DC=local" }
+        "PDC-CONSTRUCTION\USERS" { 
+            if ($selectedSubOU) {
+                return "OU=$selectedSubOU,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local"
+            }
+            return $null
+        }
+        "PDC-HQ\USERS" { 
+            if ($selectedSubOU) {
+                return "OU=$selectedSubOU,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local"
+            }
+            return $null
+        }
+        "PDC-SERVICES\USERS" { 
+            if ($selectedSubOU) {
+                return "OU=$selectedSubOU,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local"
+            }
+            return $null
+        }
+    }
+    return $null
+}
+
+# Add event handler for OU selection change
+$cmbOU.Add_SelectedIndexChanged({ Update-SubOUDropdown })
+
+# =========================
 # Summary Update Function
 # =========================
 function Update-Summary {
+    $ouPath = Get-FullOUPath
+    $ouDisplay = if ($cmbSubOU.Visible -and $cmbSubOU.SelectedItem) {
+        "$($cmbOU.SelectedItem)\$($cmbSubOU.SelectedItem)"
+    } else {
+        $cmbOU.SelectedItem
+    }
+    
     $summary = @"
 User Summary:
 =============
@@ -528,6 +635,9 @@ State: $($cmbState.SelectedItem)
 Postal Code: $($cmbPostalCode.SelectedItem)
 Telephone: $($txtTelephone.Text)
 Email: $($txtUsername.Text)@paradigmcos.com
+Organizational Unit: $ouDisplay
+
+AD Path: $ouPath
 
 Please review the information above and click 'Create User' to proceed.
 "@
@@ -578,6 +688,10 @@ $ShowPage1 = {
     $btnBack2.Visible = $false
     $txtSummary.Visible = $false
     $btnCreateUser.Visible = $false
+    $lblOU.Visible = $false
+    $cmbOU.Visible = $false
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
 }
 
 ## contents of page 2 -- add user path
@@ -600,6 +714,10 @@ $ShowPage2 = {
     $btnBack2.Visible = $false
     $txtSummary.Visible = $false
     $btnCreateUser.Visible = $false  
+    $lblOU.Visible = $false
+    $cmbOU.Visible = $false
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
 
     $lblOffice.Visible = $true
     $cmbOffice.Visible = $true
@@ -622,6 +740,10 @@ $ShowPage2 = {
 
 ## contents of page 3 -- add user path
 $ShowPage3 = {
+    # Initialize and show OU controls
+    Initialize-OUDropdowns
+    $lblOU.Visible = $true
+    $cmbOU.Visible = $true
     $txtSummary.Visible = $true
     $btnCreateUser.Visible = $true
     $btnBack2.Visible = $true
@@ -867,6 +989,11 @@ $ShowDashboard = {
     $lblAvailableLicenses.Visible = $false
     $clbAvailableLicenses.Visible = $false
     $btnAssignLicenses.Visible = $false
+    # Hide OU controls
+    $lblOU.Visible = $false
+    $cmbOU.Visible = $false
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
 }
 $ShowUserSearch = {
     $btnGoToSearch.Visible = $false
