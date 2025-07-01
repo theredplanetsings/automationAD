@@ -29,10 +29,17 @@ automationAD
 
 #### `interface.ps1`
 - **Purpose:** All-in-one, non-modular Windows Forms GUI for:
-  - Creating users interactively or via CSV import
+  - Creating users interactively with multi-page workflow
+  - CSV import for dropdown population (Office, Company, Department, etc.)
+  - Flexible Organizational Unit (OU) selection with two-level dropdown system
   - Searching for and viewing existing users and their properties/groups
   - Managing user licenses (search, view, assign available licenses)
 - **Usage:** Run directly for a self-contained GUI experience. Good for quick testing or single-file deployment.
+- **Features:**
+  - **3-Page User Creation Workflow:** Basic info → Detailed attributes → OU selection & summary
+  - **Smart OU Selection:** Automatically shows sub-directory options when needed (External/Internal)
+  - **Input Validation:** Username/UPN conflict detection, required field validation
+  - **CSV Integration:** Populates dropdowns from CSV data with validation
 - **Note:** Not designed for code reuse or modularity.
 
 #### `addLicenses.ps1`
@@ -58,13 +65,24 @@ automationAD
 
 ### Interactive/GUI User Creation, Search, and License Management
 - Use `interface.ps1` for a self-contained GUI that supports:
-  - Adding new users
-  - Searching for existing users and viewing their properties/groups
-  - Viewing and assigning licenses to users
+  - **Adding new users** with a 3-page workflow:
+    - Page 1: Basic information (Name, Username, Company) + CSV selection
+    - Page 2: Detailed attributes (Office, Department, Title, Address, Phone)
+    - Page 3: Organizational Unit selection + Summary review
+  - **OU Selection:** Choose from multiple organizational units with automatic sub-directory selection:
+    - Users (direct placement)
+    - Service Accounts (direct placement)  
+    - PDC-CONSTRUCTION\USERS (requires External/Internal selection)
+    - PDC-HQ\USERS (requires External/Internal selection)
+    - PDC-SERVICES\USERS (requires External/Internal selection)
+  - **Searching** for existing users and viewing their properties/groups
+  - **Viewing and assigning** licenses to users
 
 ### Bulk User Creation from CSV
 - Prepare a CSV matching the format of `correctlyformatted.csv`.
 - Use the GUI script to import and validate the CSV, then create users.
+- **Required CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
+- CSV data automatically populates dropdown menus for consistent data entry.
 
 ### License Assignment
 - Use the license management page in `interface.ps1` for interactive assignment.
@@ -75,10 +93,21 @@ automationAD
 
 ## Customization & Considerations
 
-- **OU Paths:** Update the OU path in scripts to match your AD configuration.
-- **Default Passwords:** Change hardcoded passwords before production use.
+- **OU Paths:** The interface now includes built-in OU selection with the following structure:
+  - `OU=Users,DC=paradigmcos,DC=local`
+  - `OU=Service Accounts,DC=paradigmcos,DC=local`
+  - `OU=External,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local`
+  - `OU=Internal,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local`
+  - `OU=External,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local`
+  - `OU=Internal,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local`
+  - `OU=External,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local`
+  - `OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local`
+- **Domain Configuration:** Update domain references (`paradigmcos.com`, `paradigmcos.local`) to match your environment.
+- **Default Passwords:** Change hardcoded passwords (`Password123@`) before production use.
+- **CSV Structure:** Modify required columns in the script if your organization uses different attribute names.
 - **Testing:** Always test in a lab environment before production.
 - **UI Controls:** The GUI disables typing in selection lists and license displays to prevent accidental edits; only selection is allowed where appropriate.
+- **Validation:** The interface includes comprehensive validation for username conflicts, UPN conflicts, and required field completion.
 
 ## Disclaimer
 
