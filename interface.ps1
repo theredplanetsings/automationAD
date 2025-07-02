@@ -125,6 +125,7 @@ try {
     }
 }
 
+
 # =========================
 # Form Initialisation
 # =========================
@@ -136,6 +137,7 @@ $form.MaximumSize = New-Object System.Drawing.Size(800,600)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
+
 
 
 # =========================
