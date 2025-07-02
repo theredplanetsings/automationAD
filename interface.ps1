@@ -126,7 +126,7 @@ try {
 }
 
 # =========================
-# Form Initialization
+# Form Initialisation
 # =========================
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Automation AD - Dashboard"
@@ -1051,6 +1051,8 @@ $ShowLicensesPage = {
     $btnBackToDashboardFromAdd.Visible = $false
 }
 $btnGoToLicenses.Add_Click({ $ShowLicensesPage.Invoke() })
+
+
 
 
 
