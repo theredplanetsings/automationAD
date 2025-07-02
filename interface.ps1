@@ -1097,9 +1097,6 @@ $lstSearchResults.Add_SelectedIndexChanged({
 
 
 
-
-
-
 # =========================
 # License Management Logic
 # =========================
