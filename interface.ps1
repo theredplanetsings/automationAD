@@ -10,7 +10,6 @@ Import-Module ActiveDirectory
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-
 # =========================
 # User Creation Functions
 # =========================
