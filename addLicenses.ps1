@@ -1,5 +1,4 @@
 <# contains scripts to add/view/and remove licenses from users using either msonline module or ms entra module **untested as of now** #>
-
 <#
 # MS Online version:
 Install-Module MSOnline
