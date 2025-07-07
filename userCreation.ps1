@@ -20,6 +20,7 @@ $title = "IT Specialist"
 $department = "IT"
 $l = "CityName" # City
 $st = "VA" # state (abbreviated)
+
 # creating the new user with starter properties
 New-ADUser  `
     -Name $displayname `
