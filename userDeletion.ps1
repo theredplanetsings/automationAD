@@ -10,6 +10,7 @@ if (!$user) {
     Write-Host "User with username '$username' not found."
     exit
 }
+
 #confirms if user found
 Write-Host "Found user: $($user.Name)"
 $confirm = Read-Host "Are you sure you want to delete this user? (Y/N)"
