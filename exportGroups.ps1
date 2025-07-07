@@ -17,7 +17,6 @@ Import-Module ActiveDirectory
 $DomainDN = "DC=paradigmcos,DC=local"
 $OutputFile = "AD_Groups_Export.txt"
 $OutputPath = Join-Path $PSScriptRoot $OutputFile
-
 # =========================
 # Function to Export Groups
 # =========================
