@@ -37,7 +37,6 @@ function Create-ADUserFromForm {
     } catch {
         # Continue if user doesn't exist
     }
-    
     # Check if UPN already exists
     try {
         $existingUPN = Get-ADUser -Filter "UserPrincipalName -eq '$userPrincipalName'" -ErrorAction SilentlyContinue
