@@ -47,7 +47,7 @@ function Create-ADUserFromForm {
     } catch {
         # Continue if UPN doesn't exist
     }
-    
+
     # retrieve values from dropdowns and textboxes - convert to strings
     $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
     $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
@@ -80,7 +80,6 @@ function Create-ADUserFromForm {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-
 try {
         # creating the new user with starter properties
         New-ADUser  `
