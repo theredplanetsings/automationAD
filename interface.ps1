@@ -562,7 +562,6 @@ function Initialize-OUDropdowns {
 function Update-SubOUDropdown {
     $cmbSubOU.Items.Clear()
     $selectedOU = $cmbOU.SelectedItem
-    
     # Show/hide sub-OU dropdown based on selection
     if ($selectedOU -eq "PDC-CONSTRUCTION\USERS" -or $selectedOU -eq "PDC-HQ\USERS" -or $selectedOU -eq "PDC-SERVICES\USERS") {
         $lblSubOU.Visible = $true
