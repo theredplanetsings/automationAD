@@ -606,8 +606,6 @@ function Get-FullOUPath {
 # Add event handler for OU selection change
 $cmbOU.Add_SelectedIndexChanged({ Update-SubOUDropdown })
 
-
-
 # =========================
 # Summary Update Function
 # =========================
