@@ -813,9 +813,6 @@ $form.Controls.Add($btnGoToLicenses)
 
 
 
-
-
-
 # =========================
 # User Search/Summary Page Controls
 # =========================
