@@ -641,8 +641,6 @@ Please review the information above and click 'Create User' to proceed.
     $txtSummary.Text = $summary
 }
 
-
-
 # =========================
 # Add User Page Switch Logic
 # =========================
