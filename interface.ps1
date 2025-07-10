@@ -1089,8 +1089,6 @@ $lstSearchResults.Add_SelectedIndexChanged({
 })
 
 
-
-
 # =========================
 # License Management Logic
 # =========================
@@ -1155,6 +1153,8 @@ $lstLicenseUserResults.Add_KeyDown({
     $allowed = @([System.Windows.Forms.Keys]::Up, [System.Windows.Forms.Keys]::Down, [System.Windows.Forms.Keys]::Return)
     if ($allowed -notcontains $_.KeyCode) { $_.SuppressKeyPress = $true }
 })
+
+
 # =========================
 # Initial Page Load
 # =========================
