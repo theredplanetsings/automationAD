@@ -1158,7 +1158,6 @@ $lstLicenseUserResults.Add_KeyDown({
     if ($allowed -notcontains $_.KeyCode) { $_.SuppressKeyPress = $true }
 })
 
-
 # =========================
 # Initial Page Load
 # =========================
