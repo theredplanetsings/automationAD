@@ -296,7 +296,6 @@ $btnNext.Add_Click({
     $ShowPage2.Invoke()
 })
 
-
 # =========================
 # Username Auto-Population
 # =========================
@@ -311,6 +310,7 @@ function Update-Username {
 }
 $txtFirstName.Add_TextChanged({ Update-Username })
 $txtLastName.Add_TextChanged({ Update-Username })
+
 
 
 # =========================
