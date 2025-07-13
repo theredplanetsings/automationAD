@@ -1,10 +1,7 @@
 # Active Directory Automation Tools
 
 These PowerShell scripts automate common Active Directory tasks, including:
-- **Creating AD Users interactively or via GUI**
-- **Bulk-creating AD Users from a CSV file**
-- **Deleting AD Users**
-- **Assigning and managing licenses for users**
+- **Creating AD Users via GUI**
 
 > **Note:** These scripts require the Active Directory module. Make sure that RSAT (Remote Server Administration Tools) is installed and that you run these scripts with elevated rights appropriate for AD administration.
 
