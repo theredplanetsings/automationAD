@@ -3,13 +3,16 @@ OUs within paradigmcos.local:
 
 -Service Accounts
 
+if user selects:
 -PDC-CONSTRUCTION
 	-USERS
+	PDC-CONSTRUCTION\USERS subdirectories:
 		-External
 		-Internal
 
 -PDC-HQ
 	-USERS
+	PDC-HQ\USERS and its sub directories (internal has three additional subdirectories):
 		-External
 		-Internal
 			-PCC
@@ -18,10 +21,12 @@ OUs within paradigmcos.local:
 
 -PDC-SERVICES
 	-USERS
+	PDC-SERVICES\USERS subdirectories:
 		-External
 		-Internal
 
 -PDC-MANAGEMENT #(these are all "management property users")
+PDC-MANAGEMENT sub directories and their individual subdirectories (every one has any of "Users", "External", "Internal" and some have "Contractors" under "Users". They will be ordered in a way that should be apparent whether they're a subdirectory or not.):
 	-Users
 		-External
 		-Internal

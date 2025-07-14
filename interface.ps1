@@ -507,10 +507,25 @@ $cmbSubOU.DropDownStyle = 'DropDownList'
 $cmbSubOU.Visible = $false
 $form.Controls.Add($cmbSubOU)
 
+# Add'l Sub OU Selection (appears when sub OU paths have add'l sub-directories)
+$lbladdlOU = New-Object System.Windows.Forms.Label
+$lbladdlOU.Text = "Add'l-Directory:"
+$lbladdlOU.Location = New-Object System.Drawing.Point(175,140)
+$lbladdlOU.AutoSize = $true
+$lbladdlOU.Visible = $false
+$form.Controls.Add($lbladdlOU)
+
+$cmbaddlOU = New-Object System.Windows.Forms.ComboBox
+$lbladdlOU.Location = New-Object System.Drawing.Point(300,138)
+$cmbaddlOU.Width = 300
+$cmbaddlOU.DropDownStyle = 'DropDownList'
+$cmbaddlOU.Visible = $false
+$form.Controls.Add($cmbaddlOU)
+
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ReadOnly = $true
-$txtSummary.Location = New-Object System.Drawing.Point(175,140)
+$txtSummary.Location = New-Object System.Drawing.Point(175,180)
 $txtSummary.Size = New-Object System.Drawing.Size(425, 270)
 $txtSummary.ScrollBars = 'Vertical'
 $txtSummary.Font = New-Object System.Drawing.Font("Consolas",10)
@@ -519,7 +534,7 @@ $form.Controls.Add($txtSummary)
 
 $btnCreateUser = New-Object System.Windows.Forms.Button
 $btnCreateUser.Text = "Create User"
-$btnCreateUser.Location = New-Object System.Drawing.Point(500,450)
+$btnCreateUser.Location = New-Object System.Drawing.Point(500,485)
 $btnCreateUser.Width = 100
 $btnCreateUser.Visible = $false
 $btnCreateUser.Add_Click({ Create-ADUserFromForm })
@@ -527,7 +542,7 @@ $form.Controls.Add($btnCreateUser)
 
 $btnBack2 = New-Object System.Windows.Forms.Button
 $btnBack2.Text = "Back"
-$btnBack2.Location = New-Object System.Drawing.Point(200,450)
+$btnBack2.Location = New-Object System.Drawing.Point(200,485)
 $btnBack2.Width = 100
 $btnBack2.Visible = $false
 $btnBack2.Add_Click({
@@ -567,6 +582,21 @@ function Update-SubOUDropdown {
     }
 }
 
+function Update-addlOUDropdown {
+    $cmbaddlOU.Items.Clear()
+    $selectedOU = $cmbOU.SelectedItem
+    # Show/hide sub-OU dropdown based on selection
+    if ($selectedOU -eq "PDC-CONSTRUCTION\USERS" -or $selectedOU -eq "PDC-HQ\USERS" -or $selectedOU -eq "PDC-SERVICES\USERS") {
+        $lbladdlOU.Visible = $true
+        $cmbaddlOU.Visible = $true
+        $cmbaddlOU.Items.Add("External")
+        $cmbaddlOU.Items.Add("Internal")
+    } else {
+        $lbladdlOU.Visible = $false
+        $cmbaddlOU.Visible = $false
+    }
+}
+
 function Get-FullOUPath {
     $selectedOU = $cmbOU.SelectedItem
     $selectedSubOU = $cmbSubOU.SelectedItem
@@ -602,6 +632,9 @@ $cmbOU.Add_SelectedIndexChanged({
     Update-Summary
 })
 $cmbSubOU.Add_SelectedIndexChanged({
+    Update-Summary
+})
+$cmbaddlOU.Add_SelectedIndexChanged({
     Update-Summary
 })
 
