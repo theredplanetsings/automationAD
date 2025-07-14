@@ -103,7 +103,6 @@ try {
         if ($company) { $attributesToSet.company = $company }
         if ($l) { $attributesToSet.l = $l }
         if ($st) { $attributesToSet.st = $st }
-        
         # sets additional attributes
         Set-ADUser `
             -Identity $username `
