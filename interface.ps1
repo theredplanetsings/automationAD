@@ -47,7 +47,6 @@ function Create-ADUserFromForm {
     } catch {
         # Continue if UPN doesn't exist
     }
-
     # retrieve values from dropdowns and textboxes - convert to strings
     $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
     $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
