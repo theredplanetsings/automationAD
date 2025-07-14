@@ -92,7 +92,6 @@ try {
             -ChangePasswordAtLogon $true `
             -Path $ouPath `
             -Enabled $true
-        
         # Only set attributes that have values
         $attributesToSet = @{}
         if ($streetAddress) { $attributesToSet.streetAddress = $streetAddress }
