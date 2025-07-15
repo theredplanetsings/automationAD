@@ -635,42 +635,46 @@ function Get-FullOUPath {
     $selectedOU = $cmbOU.SelectedItem
     $selectedSubOU = $cmbSubOU.SelectedItem
 
-    # Users and Service Accounts (top-level)
-    if ($selectedOU -eq 'Users') { return 'OU=Users,DC=paradigmcos,DC=local' }
-    if ($selectedOU -eq 'Service Accounts') { return 'OU=Service Accounts,DC=paradigmcos,DC=local' }
+    if (-not $selectedOU) { return $null }
 
-
-    # PDC-CONSTRUCTION, PDC-HQ, PDC-SERVICES
-    if ($selectedOU -like '*USERS') {
-        $ouBase = $selectedOU.Split('\')[0]
-        if ($selectedSubOU) {
-            $parts = $selectedSubOU -split '\'
-            $ouPath = @()
-            foreach ($part in [array]::Reverse($parts)) {
-                if ($part -and $part.Trim() -ne '') { $ouPath += "OU=$part" }
-            }
-            $ouPath += "OU=Users"
-            $ouPath += "OU=$ouBase"
-            return ($ouPath -join ',') + ',DC=paradigmcos,DC=local'
-        }
-        return $null
+    # Handle Users container
+    if ($selectedOU -eq 'Users' -and -not $selectedSubOU) {
+        return "CN=Users,DC=paradigmcos,DC=local"
+    }
+    # Handle Service Accounts (simple OU)
+    if ($selectedOU -eq 'Service Accounts' -and -not $selectedSubOU) {
+        return "OU=Service Accounts,DC=paradigmcos,DC=local"
     }
 
-    # PDC-MANAGEMENT
+    $ouPath = @()
+
+    if ($selectedSubOU) {
+        # If a sub-OU is selected, build the path from leaf to root, then add the root OU
+        $subParts = $selectedSubOU -split '\\'
+        foreach ($part in [array]::Reverse($subParts)) {
+            if ($part -and $part.Trim() -ne '') { $ouPath += "OU=$part" }
+        }
+        # For PDC-MANAGEMENT, always append OU=PDC-MANAGEMENT
+        if ($selectedOU -eq 'PDC-MANAGEMENT') {
+            $ouPath += 'OU=PDC-MANAGEMENT'
+        } else {
+            # For other OUs, add only the root OU (first part before any backslash)
+            $rootOU = $selectedOU -split '\\' | Select-Object -First 1
+            if ($rootOU -and $rootOU -ne 'USERS') { $ouPath += "OU=$rootOU" }
+        }
+        return ($ouPath -join ',') + ',DC=paradigmcos,DC=local'
+    }
+
+    # If only a main OU is selected (no sub-OU)
+    if ($selectedOU -like '*\\USERS') {
+        $ouBase = $selectedOU.Split('\\')[0]
+        return "OU=Users,OU=$ouBase,DC=paradigmcos,DC=local"
+    }
     if ($selectedOU -eq 'PDC-MANAGEMENT') {
-        if ($selectedSubOU) {
-            $parts = $selectedSubOU -split '\'
-            $ouPath = @()
-            foreach ($part in [array]::Reverse($parts)) {
-                if ($part -and $part.Trim() -ne '') { $ouPath += "OU=$part" }
-            }
-            $ouPath += "OU=PDC-MANAGEMENT"
-            return ($ouPath -join ',') + ',DC=paradigmcos,DC=local'
-        }
-        return $null
+        return "OU=PDC-MANAGEMENT,DC=paradigmcos,DC=local"
     }
-
-    return $null
+    # For any other OU
+    return "OU=$selectedOU,DC=paradigmcos,DC=local"
 }
 
 # Add event handler for OU selection change
@@ -702,7 +706,7 @@ function Update-Summary {
             if ($p -and $p.Trim() -ne '') { $ouParts += $p }
         }
     }
-    # Remove duplicates while preserving order (compatible with all PowerShell versions)
+    # Remove duplicates while preserving order (in case of overlap)
     $ouPartsUnique = @()
     foreach ($part in $ouParts) {
         if ($ouPartsUnique -notcontains $part) { $ouPartsUnique += $part }
