@@ -1,109 +1,82 @@
 OUs within paradigmcos.local:
 -Users
-
 -Service Accounts
-
-if user selects:
--PDC-CONSTRUCTION
-	-USERS
-	PDC-CONSTRUCTION\USERS subdirectories:
+-PDC-CONSTRUCTION\USERS
 		-External
 		-Internal
-
--PDC-HQ
-	-USERS
-	PDC-HQ\USERS and its sub directories (internal has three additional subdirectories):
+-PDC-HQ\USERS
 		-External
-		-Internal
-			-PCC
-			-PDC
-			-PMC
+		-Internal\PCC
+		-Internal\PDC
+		-Internal\PMC
 
--PDC-SERVICES
-	-USERS
-	PDC-SERVICES\USERS subdirectories:
+-PDC-SERVICES\USERS
 		-External
 		-Internal
 
 -PDC-MANAGEMENT #(these are all "management property users")
-PDC-MANAGEMENT sub directories and their individual subdirectories (every one has any of "Users", "External", "Internal" and some have "Contractors" under "Users". They will be ordered in a way that should be apparent whether they're a subdirectory or not.):
-	-Users
-		-External
-		-Internal
-	-360hstreet
-		-Users
-			-Contractors
-	-Arlington View Terrace
-		-Users
-	-Ballston Park
-		-Users
-			-Contractors
-	-Carlyle Place
-		-Users
-	-Colonial Village West
-		-Users
-	-Courthouse Crossings
-		-Users
-	-Creekside Village Apartments
-		-Users
-			-Contractors
-	-East Falls
-		-Users
-	-Evans Ridge
-		-Users
-			-Contractors
-	-Madison_Ballston
-		-Users
-			-Contractors
-	-Meridian 2250
-		-Users
-			-Contractors
-	-Meridian at Ballston
-		-Users
-	-Meridian at Braddock
-		-Users
-			-Contractors
-	-Meridian at Carlyle
-		-Users
-	-Meridian at Courthouse
-		-Users
-			-Contractors
-	-Meridian at Eisenhower
-		-Users
-			-Contractors
-	-Meridian at Gallery Place
-		-Users
-			-Contractors
-	-Meridian at Mount Vernon Triangle
-		-Users
-			-Contractors
-	-Meridian Grosvenor
-		-Users
-			-Contractors
-	-Meridian on First
-		-Users
-			-Contractors
-	-Monterey
-		-Users
-	-One University
-		-Users
-	-Ovation at Arrowbrook
-		-Users
-			-Contractors
-	-Parc Meridian
-		-Users
-	-Park Triangle
-		-Users
-	-Quebec
-		-Users
-	-Residences at the Government Center
-		-Users
-			-Contractors
-	-Terraces at Arlington View
-		-Users
-	-The Henson
-		-Users
-	-The Jordan
-		-Users
-	-Washington Center
-		-Users
+	-Users\External
+
+	-Users\Internal
+
+	-360hstreet\Users
+		
+	-Arlington View Terrace\Users
+		
+	-Ballston Park\Users
+		
+	-Carlyle Place\Users
+		
+	-Colonial Village West\Users
+		
+	-Courthouse Crossings\Users
+		
+	-Creekside Village Apartments\Users
+		
+	-East Falls\Users
+		
+	-Evans Ridge\Users
+		
+	-Madison_Ballston\Users
+		
+	-Meridian 2250\Users
+		
+	-Meridian at Ballston\Users
+		
+	-Meridian at Braddock\Users
+		
+	-Meridian at Carlyle\Users
+		
+	-Meridian at Courthouse\Users
+		
+	-Meridian at Eisenhower\Users
+		
+	-Meridian at Gallery Place\Users
+		
+	-Meridian at Mount Vernon Triangle\Users
+		
+	-Meridian Grosvenor\Users
+		
+	-Meridian on First\Users
+		
+	-Monterey\Users
+		
+	-One University\Users
+		
+	-Ovation at Arrowbrook\Users
+		
+	-Parc Meridian\Users
+		
+	-Park Triangle\Users
+		
+	-Quebec\Users
+		
+	-Residences at the Government Center\Users
+		
+	-Terraces at Arlington View\Users
+		
+	-The Henson\Users
+		
+	-The Jordan\Users
+		
+	-Washington Center\Users
