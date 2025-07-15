@@ -879,9 +879,9 @@ $ShowPage3 = {
     Initialize-OUDropdowns
     $lblOU.Visible = $true
     $cmbOU.Visible = $true
-    $txtSummary.Visible = $true
     $btnCreateUser.Visible = $true
     $btnBack2.Visible = $true
+    $txtSummary.Visible = $true
     Update-Summary
 }
 
