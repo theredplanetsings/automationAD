@@ -1175,7 +1175,6 @@ $txtCurrentLicenses.Add_KeyPress({ $_.Handled = $true })
 $txtCurrentLicenses.Add_KeyDown({ $_.SuppressKeyPress = $true })
 $txtCurrentLicenses.Add_KeyUp({ $_.SuppressKeyPress = $true })
 $txtCurrentLicenses.Add_MouseDown({ $_.Handled = $true })
-
 # Make lstLicenseUserResults selection-only (no typing)
 $lstLicenseUserResults.SelectionMode = 'One'  # only allow single selection
 $lstLicenseUserResults.TabStop = $false
