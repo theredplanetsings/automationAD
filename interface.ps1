@@ -507,21 +507,6 @@ $cmbSubOU.DropDownStyle = 'DropDownList'
 $cmbSubOU.Visible = $false
 $form.Controls.Add($cmbSubOU)
 
-# Add'l Sub OU Selection (appears when sub OU paths have add'l sub-directories)
-$lbladdlOU = New-Object System.Windows.Forms.Label
-$lbladdlOU.Text = "Add'l-Directory:"
-$lbladdlOU.Location = New-Object System.Drawing.Point(175,140)
-$lbladdlOU.AutoSize = $true
-$lbladdlOU.Visible = $false
-$form.Controls.Add($lbladdlOU)
-
-$cmbaddlOU = New-Object System.Windows.Forms.ComboBox
-$lbladdlOU.Location = New-Object System.Drawing.Point(300,138)
-$cmbaddlOU.Width = 300
-$cmbaddlOU.DropDownStyle = 'DropDownList'
-$cmbaddlOU.Visible = $false
-$form.Controls.Add($cmbaddlOU)
-
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ReadOnly = $true
@@ -552,77 +537,139 @@ $form.Controls.Add($btnBack2)
 
 
 
+
 # =========================
-# OU Management Functions
+# OU Tree Structure (supports arbitrary depth)
 # =========================
+$OU_TREE = @{
+    'Users' = $null
+    'Service Accounts' = $null
+    'PDC-CONSTRUCTION' = @{ 'USERS' = @('External','Internal') }
+    'PDC-HQ' = @{ 'USERS' = @('External','Internal\PCC','Internal\PDC','Internal\PMC') }
+    'PDC-SERVICES' = @{ 'USERS' = @('External','Internal') }
+    'PDC-MANAGEMENT' = @(
+        'Users\External',
+        'Users\Internal',
+        '360hstreet\Users',
+        'Arlington View Terrace\Users',
+        'Ballston Park\Users',
+        'Carlyle Place\Users',
+        'Colonial Village West\Users',
+        'Courthouse Crossings\Users',
+        'Creekside Village Apartments\Users',
+        'East Falls\Users',
+        'Evans Ridge\Users',
+        'Madison_Ballston\Users',
+        'Meridian 2250\Users',
+        'Meridian at Ballston\Users',
+        'Meridian at Braddock\Users',
+        'Meridian at Carlyle\Users',
+        'Meridian at Courthouse\Users',
+        'Meridian at Eisenhower\Users',
+        'Meridian at Gallery Place\Users',
+        'Meridian at Mount Vernon Triangle\Users',
+        'Meridian Grosvenor\Users',
+        'Meridian on First\Users',
+        'Monterey\Users',
+        'One University\Users',
+        'Ovation at Arrowbrook\Users',
+        'Parc Meridian\Users',
+        'Park Triangle\Users',
+        'Quebec\Users',
+        'Residences at the Government Center\Users',
+        'Terraces at Arlington View\Users',
+        'The Henson\Users',
+        'The Jordan\Users',
+        'Washington Center\Users'
+    )
+}
+
 function Initialize-OUDropdowns {
     $cmbOU.Items.Clear()
     $cmbSubOU.Items.Clear()
-    
-    # Add main OU options
-    $cmbOU.Items.Add("Users")
-    $cmbOU.Items.Add("Service Accounts")
-    $cmbOU.Items.Add("PDC-CONSTRUCTION\USERS")
-    $cmbOU.Items.Add("PDC-HQ\USERS")
-    $cmbOU.Items.Add("PDC-SERVICES\USERS")
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
+
+    # Top-level OUs
+    foreach ($key in $OU_TREE.Keys) {
+        if ($key -eq 'PDC-CONSTRUCTION' -or $key -eq 'PDC-HQ' -or $key -eq 'PDC-SERVICES') {
+            $cmbOU.Items.Add("$key\USERS")
+        } elseif ($key -eq 'PDC-MANAGEMENT') {
+            $cmbOU.Items.Add($key)
+        } else {
+            $cmbOU.Items.Add($key)
+        }
+    }
 }
 
 function Update-SubOUDropdown {
     $cmbSubOU.Items.Clear()
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
+
     $selectedOU = $cmbOU.SelectedItem
-    # Show/hide sub-OU dropdown based on selection
-    if ($selectedOU -eq "PDC-CONSTRUCTION\USERS" -or $selectedOU -eq "PDC-HQ\USERS" -or $selectedOU -eq "PDC-SERVICES\USERS") {
+    $subOUs = @()
+
+    if ($selectedOU -like '*\USERS') {
+        $ouBase = $selectedOU.Split('\')[0]
+        $ouTreeNode = $OU_TREE[$ouBase]
+        if ($ouTreeNode -and $ouTreeNode.ContainsKey('USERS')) {
+            $subOUs = $ouTreeNode['USERS']
+        }
+    } elseif ($selectedOU -eq 'PDC-MANAGEMENT') {
+        $subOUs = $OU_TREE['PDC-MANAGEMENT']
+    }
+
+    if ($subOUs -and $subOUs.Count -gt 0) {
         $lblSubOU.Visible = $true
         $cmbSubOU.Visible = $true
-        $cmbSubOU.Items.Add("External")
-        $cmbSubOU.Items.Add("Internal")
-    } else {
-        $lblSubOU.Visible = $false
-        $cmbSubOU.Visible = $false
+        foreach ($sub in $subOUs) { $cmbSubOU.Items.Add($sub) }
+        if ($cmbSubOU.Items.Count -eq 1) { $cmbSubOU.SelectedIndex = 0 }
+        return
     }
-}
-
-function Update-addlOUDropdown {
-    $cmbaddlOU.Items.Clear()
-    $selectedOU = $cmbOU.SelectedItem
-    # Show/hide sub-OU dropdown based on selection
-    if ($selectedOU -eq "PDC-CONSTRUCTION\USERS" -or $selectedOU -eq "PDC-HQ\USERS" -or $selectedOU -eq "PDC-SERVICES\USERS") {
-        $lbladdlOU.Visible = $true
-        $cmbaddlOU.Visible = $true
-        $cmbaddlOU.Items.Add("External")
-        $cmbaddlOU.Items.Add("Internal")
-    } else {
-        $lbladdlOU.Visible = $false
-        $cmbaddlOU.Visible = $false
-    }
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
 }
 
 function Get-FullOUPath {
     $selectedOU = $cmbOU.SelectedItem
     $selectedSubOU = $cmbSubOU.SelectedItem
-    
-    switch ($selectedOU) {
-        "Users" { return "OU=Users,DC=paradigmcos,DC=local" }
-        "Service Accounts" { return "OU=Service Accounts,DC=paradigmcos,DC=local" }
-        "PDC-CONSTRUCTION\USERS" { 
-            if ($selectedSubOU) {
-                return "OU=$selectedSubOU,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local"
+
+    # Users and Service Accounts (top-level)
+    if ($selectedOU -eq 'Users') { return 'OU=Users,DC=paradigmcos,DC=local' }
+    if ($selectedOU -eq 'Service Accounts') { return 'OU=Service Accounts,DC=paradigmcos,DC=local' }
+
+
+    # PDC-CONSTRUCTION, PDC-HQ, PDC-SERVICES
+    if ($selectedOU -like '*USERS') {
+        $ouBase = $selectedOU.Split('\')[0]
+        if ($selectedSubOU) {
+            $parts = $selectedSubOU -split '\'
+            $ouPath = @()
+            foreach ($part in [array]::Reverse($parts)) {
+                if ($part -and $part.Trim() -ne '') { $ouPath += "OU=$part" }
             }
-            return $null
+            $ouPath += "OU=Users"
+            $ouPath += "OU=$ouBase"
+            return ($ouPath -join ',') + ',DC=paradigmcos,DC=local'
         }
-        "PDC-HQ\USERS" { 
-            if ($selectedSubOU) {
-                return "OU=$selectedSubOU,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local"
-            }
-            return $null
-        }
-        "PDC-SERVICES\USERS" { 
-            if ($selectedSubOU) {
-                return "OU=$selectedSubOU,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local"
-            }
-            return $null
-        }
+        return $null
     }
+
+    # PDC-MANAGEMENT
+    if ($selectedOU -eq 'PDC-MANAGEMENT') {
+        if ($selectedSubOU) {
+            $parts = $selectedSubOU -split '\'
+            $ouPath = @()
+            foreach ($part in [array]::Reverse($parts)) {
+                if ($part -and $part.Trim() -ne '') { $ouPath += "OU=$part" }
+            }
+            $ouPath += "OU=PDC-MANAGEMENT"
+            return ($ouPath -join ',') + ',DC=paradigmcos,DC=local'
+        }
+        return $null
+    }
+
     return $null
 }
 
@@ -634,43 +681,69 @@ $cmbOU.Add_SelectedIndexChanged({
 $cmbSubOU.Add_SelectedIndexChanged({
     Update-Summary
 })
-$cmbaddlOU.Add_SelectedIndexChanged({
-    Update-Summary
-})
 
 # =========================
 # Summary Update Function
 # =========================
 function Update-Summary {
-    $ouPath = Get-FullOUPath
-    $ouDisplay = if ($cmbSubOU.Visible -and $cmbSubOU.SelectedItem) {
-        "$($cmbOU.SelectedItem)\$($cmbSubOU.SelectedItem)"
-    } else {
-        $cmbOU.SelectedItem
+    $domainRoot = 'paradigmcos.local'
+    $ouParts = @()
+    # Build OU parts from dropdowns in order: main OU, then all sub-OU levels
+    if ($cmbOU.SelectedItem) {
+        $mainOU = $cmbOU.SelectedItem.ToString()
+        $mainParts = $mainOU -split '\\'
+        foreach ($p in $mainParts) {
+            if ($p -and $p.Trim() -ne '') { $ouParts += $p }
+        }
     }
-    
-    $summary = @"
-User Summary:
-=============
-Name: $($txtFirstName.Text) $($txtLastName.Text)
-Username: $($txtUsername.Text)
-Company: $($cmbCompany.SelectedItem)
-Office: $($cmbOffice.SelectedItem)
-Department: $($cmbDepartment.SelectedItem)
-Title: $($cmbTitle.SelectedItem)
-Street Address: $($cmbStreetAddress.SelectedItem)
-City: $($cmbCity.SelectedItem)
-State: $($cmbState.SelectedItem)
-Postal Code: $($cmbPostalCode.SelectedItem)
-Telephone: $($txtTelephone.Text)
-Email: $($txtUsername.Text)@paradigmcos.com
-Organizational Unit: $ouDisplay
+    if ($cmbSubOU.Visible -and $cmbSubOU.SelectedItem) {
+        $subParts = $cmbSubOU.SelectedItem.ToString() -split '\\'
+        foreach ($p in $subParts) {
+            if ($p -and $p.Trim() -ne '') { $ouParts += $p }
+        }
+    }
+    # Remove duplicates while preserving order (in case of overlap)
+    $ouParts = [System.Collections.Generic.List[string]]::new($ouParts) | Select-Object -Unique
 
-AD Path: $ouPath
+    # Build DN (leaf to root)
+    $ouDN = ''
+    if ($ouParts.Count -gt 0) {
+        $ouPartsReversed = $ouParts.Clone()
+        [array]::Reverse($ouPartsReversed)
+        $ouDN = ($ouPartsReversed | ForEach-Object { "OU=$_" }) -join ','
+        $ouDN += ',DC=paradigmcos,DC=local'
+    }
 
-Please review the information above and click 'Create User' to proceed.
-"@
-    $txtSummary.Text = $summary
+    # Build AD Path (root to leaf)
+    $adPathDisplay = $domainRoot
+    if ($ouParts.Count -gt 0) {
+        foreach ($part in $ouParts) {
+            $adPathDisplay += "\$part"
+        }
+    }
+    if (-not $ouDN) { $ouDN = '' }
+    if (-not $adPathDisplay) { $adPathDisplay = '' }
+
+    $summary = @()
+    $summary += 'User Summary:'
+    $summary += '============='
+    $summary += "Name: $($txtFirstName.Text) $($txtLastName.Text)"
+    $summary += "Username: $($txtUsername.Text)"
+    $summary += "Company: $($cmbCompany.SelectedItem)"
+    $summary += "Office: $($cmbOffice.SelectedItem)"
+    $summary += "Department: $($cmbDepartment.SelectedItem)"
+    $summary += "Title: $($cmbTitle.SelectedItem)"
+    $summary += "Street Address: $($cmbStreetAddress.SelectedItem)"
+    $summary += "City: $($cmbCity.SelectedItem)"
+    $summary += "State: $($cmbState.SelectedItem)"
+    $summary += "Postal Code: $($cmbPostalCode.SelectedItem)"
+    $summary += "Telephone: $($txtTelephone.Text)"
+    $summary += "Email: $($txtUsername.Text)@paradigmcos.com"
+    $summary += "Organizational Unit: $ouDN"
+    $summary += "AD Path: $adPathDisplay"
+    $summary += ''
+    $summary += "Please review the information above and click 'Create User' to proceed."
+    $txtSummary.Text = $summary -join "`r`n"
 }
 
 # =========================
@@ -769,31 +842,7 @@ $ShowPage2 = {
 
 ## contents of page 3 -- add user path
 $ShowPage3 = {
-    # Initialize and show OU controls
-    Initialize-OUDropdowns
-    $lblOU.Visible = $true
-    $cmbOU.Visible = $true
-    $txtSummary.Visible = $true
-    $btnCreateUser.Visible = $true
-    $btnBack2.Visible = $true
-    Update-Summary
-
-    $lblFirstName.Visible = $false
-    $txtFirstName.Visible = $false
-    $lblLastName.Visible = $false
-    $txtLastName.Visible = $false
-    $lblUsername.Visible = $false
-    $txtUsername.Visible = $false
-    $lblCompany.Visible = $false
-    $cmbCompany.Visible = $false
-    $btnSelectCsv.Visible = $false
-
-    $btnNext.Visible = $false
-    $btnBackToDashboardFromAdd.Visible = $false
-
-    $btnBack.Visible = $false
-    $btnNext2.Visible = $false
-
+    # Hide all page 2 controls
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
     $lblDepartment.Visible = $false
@@ -810,7 +859,30 @@ $ShowPage3 = {
     $cmbPostalCode.Visible = $false
     $lblTelephone.Visible = $false
     $txtTelephone.Visible = $false
-    #$btnSubmit.Visible = $false
+    $btnBack.Visible = $false
+    $btnNext2.Visible = $false
+
+    # Hide all page 1 controls
+    $lblFirstName.Visible = $false
+    $txtFirstName.Visible = $false
+    $lblLastName.Visible = $false
+    $txtLastName.Visible = $false
+    $lblUsername.Visible = $false
+    $txtUsername.Visible = $false
+    $lblCompany.Visible = $false
+    $cmbCompany.Visible = $false
+    $btnSelectCsv.Visible = $false
+    $btnNext.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+
+    # Show only page 3 controls
+    Initialize-OUDropdowns
+    $lblOU.Visible = $true
+    $cmbOU.Visible = $true
+    $txtSummary.Visible = $true
+    $btnCreateUser.Visible = $true
+    $btnBack2.Visible = $true
+    Update-Summary
 }
 
 
