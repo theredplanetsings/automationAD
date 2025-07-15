@@ -702,8 +702,12 @@ function Update-Summary {
             if ($p -and $p.Trim() -ne '') { $ouParts += $p }
         }
     }
-    # Remove duplicates while preserving order (in case of overlap)
-    $ouParts = [System.Collections.Generic.List[string]]::new($ouParts) | Select-Object -Unique
+    # Remove duplicates while preserving order (compatible with all PowerShell versions)
+    $ouPartsUnique = @()
+    foreach ($part in $ouParts) {
+        if ($ouPartsUnique -notcontains $part) { $ouPartsUnique += $part }
+    }
+    $ouParts = $ouPartsUnique
 
     # Build DN (leaf to root)
     $ouDN = ''
