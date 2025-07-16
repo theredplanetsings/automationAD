@@ -75,10 +75,15 @@ automationAD
   - **Searching** for existing users and viewing their properties/groups
   - **Viewing and assigning** licenses to users
 
-### Bulk User Creation from CSV
-- Prepare a CSV matching the format of `correctlyformatted.csv`.
-- Use the GUI script to import and validate the CSV, then create users.
-- **Required CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
+
+### Bulk User Creation and Security Group Assignment from CSV
+- Prepare a CSV matching the format of `correctlyformatted.csv` for user attributes.
+- You can also use a separate CSV (e.g., `groupMapping.csv`) to specify security group assignments for each OU:
+  - **Required Columns:** `OUPath`, `Groups`
+  - `OUPath`: The exact distinguished name (DN) or friendly path of the OU (e.g., `OU=Users,DC=paradigmcos,DC=local`)
+  - `Groups`: Comma-separated list of security groups to assign to users created in that OU (e.g., `All_Paradigm_Staff,All_HQ_Staff`)
+- The GUI script can be extended to import this mapping and automatically assign the specified groups when creating a user in the matching OU.
+- **Required User CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
 - CSV data automatically populates dropdown menus for consistent data entry.
 
 ### License Assignment
@@ -88,17 +93,20 @@ automationAD
 ### User Deletion
 - Run `userDeletion.ps1` and follow the prompts.
 
+
 ## Customization & Considerations
 
-- **OU Paths:** The interface now includes built-in OU selection with the following structure:
-  - `OU=Users,DC=paradigmcos,DC=local`
-  - `OU=Service Accounts,DC=paradigmcos,DC=local`
-  - `OU=External,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local`
-  - `OU=Internal,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local`
-  - `OU=External,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local`
-  - `OU=Internal,OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local`
-  - `OU=External,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local`
-  - `OU=Internal,OU=Users,OU=PDC-SERVICES,DC=paradigmcos,DC=local`
+- **OU Paths:** The interface includes built-in OU selection and now supports external mapping of OU paths to security groups via CSV.
+- **Security Group Mapping CSV:** To automate group assignment, create a CSV with columns:
+  - `OUPath`: Distinguished Name or friendly path of the OU
+  - `Groups`: Comma-separated group names
+  Example:
+  ```csv
+  OUPath,Groups
+  OU=Users,DC=paradigmcos,DC=local,All_Paradigm_Staff,All_HQ_Staff
+  OU=Service Accounts,DC=paradigmcos,DC=local,Service_Account_Group
+  OU=External,OU=Users,OU=PDC-CONSTRUCTION,DC=paradigmcos,DC=local,All_Construction_Staff,All_Jobsite_Staff
+  ```
 - **Domain Configuration:** Update domain references (`paradigmcos.com`, `paradigmcos.local`) to match your environment.
 - **Default Passwords:** Change hardcoded passwords (`Password123@`) before production use.
 - **CSV Structure:** Modify required columns in the script if your organization uses different attribute names.
