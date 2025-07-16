@@ -677,7 +677,7 @@ function Get-FullOUPath {
     return "OU=$selectedOU,DC=paradigmcos,DC=local"
 }
 
-# Add event handler for OU selection change
+# Event handler for OU selection change
 $cmbOU.Add_SelectedIndexChanged({
     Update-SubOUDropdown
     Update-Summary
@@ -706,7 +706,7 @@ function Update-Summary {
             if ($p -and $p.Trim() -ne '') { $ouParts += $p }
         }
     }
-    # Remove duplicates while preserving order (in case of overlap)
+    # Removes duplicates while preserving order (in case of overlap)
     $ouPartsUnique = @()
     foreach ($part in $ouParts) {
         if ($ouPartsUnique -notcontains $part) { $ouPartsUnique += $part }
