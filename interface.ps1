@@ -111,6 +111,39 @@ try {
             -EmailAddress $mail `
             -Replace $attributesToSet
             
+        # Assign security groups based on OU selection
+        $selectedOU = $cmbOU.SelectedItem
+        $groupsToAdd = @()
+        if ($selectedOU) {
+            switch ($selectedOU) {
+                'PDC-MANAGEMENT' {
+                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
+                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
+                }
+                'PDC-CONSTRUCTION\USERS' {
+                    $groupsToAdd += 'All_Construction_Staff'
+                    $groupsToAdd += 'All_Jobsite_Staff@paradigmcos.com'
+                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
+                }
+                'PDC-HQ\USERS' {
+                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
+                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
+                }
+                'PDC-SERVICES\USERS' {
+                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
+                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
+                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
+                }
+            }
+        }
+        # Add user to each group
+        foreach ($group in $groupsToAdd) {
+            try {
+                Add-ADGroupMember -Identity $group -Members $username -ErrorAction Stop
+            } catch {
+                Write-Host "Error adding $username to ${group}: $($_.Exception.Message)"
+            }
+        }
         [System.Windows.Forms.MessageBox]::Show("User created successfully!","Success")
         $ShowPage1.Invoke()
         $form.Show()
