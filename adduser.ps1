@@ -805,7 +805,7 @@ $ShowPage1 = {
     $btnNext.Visible = $true
     $btnSelectCsv.Visible = $true
     $btnBackToDashboardFromAdd.Visible = $true
-    # Hide other controls
+    
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
     $lblOffice.Visible = $false
@@ -833,10 +833,8 @@ $ShowPage1 = {
     $cmbOU.Visible = $false
     $lblSubOU.Visible = $false
     $cmbSubOU.Visible = $false
-    # Always hide manager role controls when returning to page 1
     $lblMgrRole.Visible = $false
     $cmbMgrRole.Visible = $false
-    # Hide Select OU CSV button when returning to page 1
     $btnSelectOUCsv.Visible = $false
 }
 
