@@ -11,12 +11,15 @@ These PowerShell scripts automate common Active Directory tasks, including:
 automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
 ├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import
+│                                 # Supports additive group assignment for manager roles (see below)
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
-└── README.md                  # self-explanatory
+└── README.md                  # This file
 ```
+
+> **Note:** The GUI (`interface.ps1`) and group assignment logic are fully CSV-driven. When creating a user, all non-manager groups for the selected OU are assigned by default. If a manager role is selected, the user also receives the appropriate manager groups (additive, not replacement) as defined in the OU's group mapping. See the "Group Assignment Logic (Manager Roles)" section below for details.
 
 ### Script Details & Differences
 
