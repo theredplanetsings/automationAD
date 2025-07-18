@@ -836,6 +836,8 @@ $ShowPage1 = {
     # Always hide manager role controls when returning to page 1
     $lblMgrRole.Visible = $false
     $cmbMgrRole.Visible = $false
+    # Hide Select OU CSV button when returning to page 1
+    $btnSelectOUCsv.Visible = $false
 }
 
 ## contents of page 2 -- add user path
