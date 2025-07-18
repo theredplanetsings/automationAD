@@ -26,7 +26,6 @@ function Create-ADUserFromForm {
     $domainname = "paradigmcos.com"
     $userPrincipalName = "$username@$domainname"
     $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
-    
     # Check if username already exists
     try {
         $existingUser = Get-ADUser -Filter "SamAccountName -eq '$username'" -ErrorAction SilentlyContinue
@@ -34,9 +33,7 @@ function Create-ADUserFromForm {
             [System.Windows.Forms.MessageBox]::Show("Username '$username' already exists. Please choose a different username.", "Username Conflict", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             return
         }
-    } catch {
-        # Continue if user doesn't exist
-    }
+    } catch {}
     # Check if UPN already exists
     try {
         $existingUPN = Get-ADUser -Filter "UserPrincipalName -eq '$userPrincipalName'" -ErrorAction SilentlyContinue
@@ -44,9 +41,7 @@ function Create-ADUserFromForm {
             [System.Windows.Forms.MessageBox]::Show("User Principal Name '$userPrincipalName' already exists. Please choose a different username.", "UPN Conflict", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
             return
         }
-    } catch {
-        # Continue if UPN doesn't exist
-    }
+    } catch {}
     # retrieve values from dropdowns and textboxes - convert to strings
     $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
     $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
@@ -60,26 +55,19 @@ function Create-ADUserFromForm {
     $mail = "$username@$domainname"
     $mailNickname = $username
     $proxyAddresses = "smtp:$mail"
-    
-    # Debug output - remove this after testing
-    Write-Host "Debug Values:"
-    Write-Host "Office: '$physicalDeliveryOfficeName'"
-    Write-Host "Company: '$company'"
-    Write-Host "Department: '$department'"
-    Write-Host "Title: '$title'"
-    Write-Host "Street: '$streetAddress'"
-    Write-Host "City: '$l'"
-    Write-Host "State: '$st'"
-    Write-Host "Postal: '$postalCode'"
-    Write-Host "Phone: '$telephoneNum'"
-    
     # Validate OU selection
     $ouPath = Get-FullOUPath
     if (-not $ouPath) {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-try {
+    # Convert to LDAP path for AD
+    $ldapOUPath = Convert-OUPathToLDAP $ouPath
+    if (-not $ldapOUPath) {
+        [System.Windows.Forms.MessageBox]::Show("Could not convert OU path to LDAP format. Please check your OU selection.", "OU Path Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    try {
         # creating the new user with starter properties
         New-ADUser  `
             -Name $fullName `
@@ -90,7 +78,7 @@ try {
             -SamAccountName $username `
             -UserPrincipalName $userPrincipalName `
             -ChangePasswordAtLogon $true `
-            -Path $ouPath `
+            -Path $ldapOUPath `
             -Enabled $true
         # Only set attributes that have values
         $attributesToSet = @{}
@@ -110,31 +98,23 @@ try {
             -OfficePhone $telephoneNum `
             -EmailAddress $mail `
             -Replace $attributesToSet
-            
-        # Assign security groups based on OU selection
-        $selectedOU = $cmbOU.SelectedItem
+        # Assign security groups based on OU selection and manager role (additive)
         $groupsToAdd = @()
-        if ($selectedOU) {
-            switch ($selectedOU) {
-                'PDC-MANAGEMENT' {
-                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                }
-                'PDC-CONSTRUCTION\USERS' {
-                    $groupsToAdd += 'All_Construction_Staff'
-                    $groupsToAdd += 'All_Jobsite_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                }
-                'PDC-HQ\USERS' {
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
-                }
-                'PDC-SERVICES\USERS' {
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
-                }
+        if ($script:ouGroups.ContainsKey($ouPath)) {
+            $allGroups = $script:ouGroups[$ouPath]
+            $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
+            # Always assign all non-manager groups
+            $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
+            $groupsToAdd = @($baseGroups)
+            if ($mgrRole -eq "Assistant Manager") {
+                $asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr)_' }
+                $groupsToAdd += $asstMgrGroups
+            } elseif ($mgrRole -eq "Manager") {
+                $mgrGroups = $allGroups | Where-Object { $_ -match '_Mgr_' }
+                $groupsToAdd += $mgrGroups
             }
+            # Remove duplicates
+            $groupsToAdd = $groupsToAdd | Sort-Object -Unique
         }
         # Add user to each group
         foreach ($group in $groupsToAdd) {
@@ -166,6 +146,68 @@ $form.MaximizeBox = $false
 
 # =========================
 # CSV Import/Validation
+# Security group CSV loader
+function Load-SecGroupCsv {
+    param($csvPath)
+    $script:secGroupCsvError = $false
+    $script:ouPaths = @()
+    $script:ouGroups = @{}
+    try {
+        $csv = Import-Csv -Path $csvPath
+        $headers = (Get-Content $csvPath -First 1).Split(',')
+        foreach ($header in $headers) {
+            if (-not $header.Trim().StartsWith('paradigmcos.local\')) {
+                [System.Windows.Forms.MessageBox]::Show("OU column '$header' must start with 'paradigmcos.local\'", "CSV Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                $script:secGroupCsvError = $true
+                return
+            }
+        }
+        $script:ouPaths = $headers
+        foreach ($header in $headers) {
+            $groups = @()
+            foreach ($row in $csv) {
+                $val = $row.$header
+                if ($val -and $val.Trim() -ne '') { $groups += $val.Trim() }
+            }
+            $script:ouGroups[$header] = $groups
+        }
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show("Error reading secgroup CSV: $($_.Exception.Message)", "CSV Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        $script:secGroupCsvError = $true
+    }
+}
+# OU Path Conversion Utility
+function Convert-OUPathToLDAP {
+    param(
+        [string]$ouPath
+    )
+    if (-not $ouPath -or $ouPath.Trim() -eq '') { return $null }
+    # Only process if starts with paradigmcos.local\
+    if ($ouPath -notlike 'paradigmcos.local*') { return $null }
+    # Hardcoded exception for paradigmcos.local\Users
+    if ($ouPath -eq 'paradigmcos.local\Users') {
+        $domain = 'paradigmcos.local'
+        $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
+        $dcString = $domainDCs -join ','
+        return "CN=Users,$dcString"
+    }
+    $parts = $ouPath.Split('\')
+    if ($parts.Count -lt 2) { return $null }
+    # First part is domain
+    $domain = $parts[0]
+    $ouParts = $parts[1..($parts.Count-1)]
+    # Reverse OU parts for correct LDAP order (leaf to root)
+    $ouPartsReversed = [System.Collections.ArrayList]::new()
+    $ouPartsReversed.AddRange($ouParts)
+    [void]$ouPartsReversed.Reverse()
+    $ouString = ($ouPartsReversed | ForEach-Object { 'OU=' + $_ }) -join ','
+    # Build DC string
+    $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
+    $dcString = $domainDCs -join ','
+    # Combine
+    $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
+    return $ldapPath
+}
 # =========================
 ## update as needed, determines the columns required in the CSV file to autopopulate dropdowns.
 # must add additional dropdown sections to this program if you add more columns to the CSV.
