@@ -12,16 +12,31 @@ automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
 ├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import
 │                                 # Supports additive group assignment for manager roles (see below)
+├── adduser.ps1                # GUI for creating AD users only (no search/license features; streamlined version of interface.ps1)
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
+├── secgroups.csv              # Example security group mapping CSV (OU path columns, group rows; used for group assignment)
 └── README.md                  # This file
 ```
 
 > **Note:** The GUI (`interface.ps1`) and group assignment logic are fully CSV-driven. When creating a user, all non-manager groups for the selected OU are assigned by default. If a manager role is selected, the user also receives the appropriate manager groups (additive, not replacement) as defined in the OU's group mapping. See the "Group Assignment Logic (Manager Roles)" section below for details.
 
 ### Script Details & Differences
+
+#### `adduser.ps1`
+- **Purpose:** Windows Forms GUI for creating AD users only. This is a streamlined version of `interface.ps1` containing only the user creation workflow (no user search, summary, or license management features).
+- **Usage:** Run directly in PowerShell for a focused, minimal GUI experience dedicated to user creation.
+- **Features:**
+  - Multi-page user creation workflow (basic info, detailed attributes, OU selection, summary)
+  - CSV-driven dropdowns and OU/group mapping
+  - Additive group assignment logic for manager roles (see details above)
+  - No search or license management UI
+
+#### `secgroups.csv`
+- **Purpose:** Example security group mapping file. Each column header is an OU path; each row contains group names to assign for that OU. Used by the GUI to automate group assignment based on OU and manager role.
+- **Usage:** Reference or template for your own OU-to-group mapping. Edit as needed to match your AD structure and group policies.
 
 #### `userCreation.ps1`
 - **Purpose:** Standalone script for creating a single AD user with hardcoded/test values. Useful for testing or as a template for scripting.
