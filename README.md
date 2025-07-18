@@ -75,11 +75,10 @@ automationAD
   - **Searching** for existing users and viewing their properties/groups
   - **Viewing and assigning** licenses to users
 
-
-
 ### Bulk User Creation and Security Group Assignment from CSV
 - Prepare a CSV matching the format of `correctlyformatted.csv` for user attributes.
-- For security group assignment automation, use the provided `sgroups_template.csv` as your mapping file:
+
+For security group assignment automation, use the provided `sgroups_template.csv` as your mapping file:
   - Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`, etc.).
   - For each OU column, enter the security groups (comma-separated) that should be assigned to users created in that OU.
   - Example row:
@@ -87,7 +86,14 @@ automationAD
     paradigmcos.local\\Users,paradigmcos.local\\PDC-MANAGEMENT\\360hstreet\\Users
     All_Paradigm_Staff@paradigmcos.com,All_Management_Staff@paradigmcos.com
     ```
-- The GUI script can be extended to import this mapping and automatically assign the specified groups when creating a user in the matching OU.
+
+**Group Assignment Logic (Manager Roles):**
+- Users always receive all non-manager groups for their OU.
+- If "Assistant Manager" is selected, they also receive all groups in their OU containing `_AsstMgr_` or `_Asstmgr_` (additive).
+- If "Manager" is selected, they also receive all groups in their OU containing `_Mgr_` (additive).
+- This ensures that manager role groups are assigned in addition to the base OU groups, never as a replacement.
+
+- The GUI script imports this mapping and automatically assigns the specified groups when creating a user in the matching OU, applying the above logic for manager roles.
 - **Required User CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
 - CSV data automatically populates dropdown menus for consistent data entry.
 
@@ -97,8 +103,6 @@ automationAD
 
 ### User Deletion
 - Run `userDeletion.ps1` and follow the prompts.
-
-
 
 ## Customization & Considerations
 
