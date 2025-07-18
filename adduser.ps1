@@ -1,5 +1,5 @@
 <#============================================
-  Automation AD - Main Interface Script
+  Automation AD - Main Program
 ============================================#>
 
 # =========================
@@ -79,7 +79,13 @@ function Create-ADUserFromForm {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-try {
+    # Convert to LDAP path for AD
+    $ldapOUPath = Convert-OUPathToLDAP $ouPath
+    if (-not $ldapOUPath) {
+        [System.Windows.Forms.MessageBox]::Show("Could not convert OU path to LDAP format. Please check your OU selection.", "OU Path Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    try {
         # creating the new user with starter properties
         New-ADUser  `
             -Name $fullName `
@@ -90,7 +96,7 @@ try {
             -SamAccountName $username `
             -UserPrincipalName $userPrincipalName `
             -ChangePasswordAtLogon $true `
-            -Path $ouPath `
+            -Path $ldapOUPath `
             -Enabled $true
         # Only set attributes that have values
         $attributesToSet = @{}
@@ -111,32 +117,25 @@ try {
             -EmailAddress $mail `
             -Replace $attributesToSet
             
-        # Assign security groups based on OU selection
-        $selectedOU = $cmbOU.SelectedItem
+        # Assigns security groups based on OU selection and manager role (additive)
         $groupsToAdd = @()
-        if ($selectedOU) {
-            switch ($selectedOU) {
-                'PDC-MANAGEMENT' {
-                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                }
-                'PDC-CONSTRUCTION\USERS' {
-                    $groupsToAdd += 'All_Construction_Staff'
-                    $groupsToAdd += 'All_Jobsite_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                }
-                'PDC-HQ\USERS' {
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
-                }
-                'PDC-SERVICES\USERS' {
-                    $groupsToAdd += 'All_Paradigm_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_HQ_Staff@paradigmcos.com'
-                    $groupsToAdd += 'All_Management_Staff@paradigmcos.com'
-                }
+        if ($script:ouGroups.ContainsKey($ouPath)) {
+            $allGroups = $script:ouGroups[$ouPath]
+            $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
+            # Assign all non-manager groups
+            $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
+            $groupsToAdd = @($baseGroups)
+            if ($mgrRole -eq "Assistant Manager") {
+                $asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr)_' }
+                $groupsToAdd += $asstMgrGroups
+            } elseif ($mgrRole -eq "Manager") {
+                $mgrGroups = $allGroups | Where-Object { $_ -match '_Mgr_' }
+                $groupsToAdd += $mgrGroups
             }
+            # Removes duplicates
+            $groupsToAdd = $groupsToAdd | Sort-Object -Unique
         }
-        # Add user to each group
+        # Adds user to each group
         foreach ($group in $groupsToAdd) {
             try {
                 Add-ADGroupMember -Identity $group -Members $username -ErrorAction Stop
@@ -648,8 +647,6 @@ $btnBack2.Add_Click({
 $form.Controls.Add($btnBack2)
 
 
-
-
 # =========================
 # OU Tree Structure (supports arbitrary depth)
 # =========================
@@ -765,7 +762,7 @@ function Update-Summary {
     if ($selectedSubOU -and $selectedSubOU.Trim() -ne '') {
         $ouPath = "$selectedOU\$selectedSubOU"
     }
-
+    $ldapOUPath = Convert-OUPathToLDAP $ouPath
     $summary = @()
     $summary += 'User Summary:'
     $summary += '============='
@@ -781,7 +778,8 @@ function Update-Summary {
     $summary += "Postal Code: $($cmbPostalCode.SelectedItem)"
     $summary += "Telephone: $($txtTelephone.Text)"
     $summary += "Email: $($txtUsername.Text)@paradigmcos.com"
-    $summary += "Organizational Unit: $ouPath"
+    $summary += "OU Path (CSV): $ouPath"
+    $summary += "OU Path (AD): $ldapOUPath"
     $summary += "Manager Role: $mgrRole"
     $summary += ''
     $summary += "Please review the information above and click 'Create User' to proceed."
@@ -793,6 +791,9 @@ function Update-Summary {
 # =========================
 ## contents of page 1 -- add user path
 $ShowPage1 = {
+    # Hide dashboard controls
+    $btnGoToAddUser.Visible = $false
+    # Show add user page 1 controls
     $lblFirstName.Visible = $true
     $txtFirstName.Visible = $true
     $lblLastName.Visible = $true
@@ -804,9 +805,7 @@ $ShowPage1 = {
     $btnNext.Visible = $true
     $btnSelectCsv.Visible = $true
     $btnBackToDashboardFromAdd.Visible = $true
-
-    $btnGoToAddUser.Visible = $false
-
+    # Hide other controls
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
     $lblOffice.Visible = $false
@@ -834,6 +833,9 @@ $ShowPage1 = {
     $cmbOU.Visible = $false
     $lblSubOU.Visible = $false
     $cmbSubOU.Visible = $false
+    # Always hide manager role controls when returning to page 1
+    $lblMgrRole.Visible = $false
+    $cmbMgrRole.Visible = $false
 }
 
 ## contents of page 2 -- add user path
@@ -928,6 +930,47 @@ $ShowPage3 = {
 }
 
 
+$ShowDashboard = {
+    # Show dashboard controls
+    $btnGoToAddUser.Visible = $true
+    # Hide all add user controls (page 1, 2, 3)
+    $lblFirstName.Visible = $false
+    $txtFirstName.Visible = $false
+    $lblLastName.Visible = $false
+    $txtLastName.Visible = $false
+    $lblUsername.Visible = $false
+    $txtUsername.Visible = $false
+    $lblCompany.Visible = $false
+    $cmbCompany.Visible = $false
+    $btnNext.Visible = $false
+    $btnSelectCsv.Visible = $false
+    $btnBackToDashboardFromAdd.Visible = $false
+    $btnBack.Visible = $false
+    $btnNext2.Visible = $false
+    $lblOffice.Visible = $false
+    $cmbOffice.Visible = $false
+    $lblState.Visible = $false
+    $cmbState.Visible = $false
+    $lblCity.Visible = $false
+    $cmbCity.Visible = $false
+    $lblPostalCode.Visible = $false
+    $cmbPostalCode.Visible = $false
+    $lblStreet.Visible = $false
+    $cmbStreetAddress.Visible = $false
+    $lblDepartment.Visible = $false
+    $cmbDepartment.Visible = $false
+    $lblTitle.Visible = $false
+    $cmbTitle.Visible = $false
+    $lblTelephone.Visible = $false
+    $txtTelephone.Visible = $false
+    $btnBack2.Visible = $false
+    $txtSummary.Visible = $false
+    $btnCreateUser.Visible = $false
+    $lblOU.Visible = $false
+    $cmbOU.Visible = $false
+    $lblSubOU.Visible = $false
+    $cmbSubOU.Visible = $false
+}
 # =========================
 # Dashboard Controls
 # =========================
@@ -940,6 +983,40 @@ $btnGoToAddUser.Visible = $true
 $btnGoToAddUser.Add_Click({ $ShowPage1.Invoke() })
 $form.Controls.Add($btnGoToAddUser)
 
+# =========================
+# OU Path Conversion Utility
+# =========================
+function Convert-OUPathToLDAP {
+    param(
+        [string]$ouPath
+    )
+    if (-not $ouPath -or $ouPath.Trim() -eq '') { return $null }
+    # Only process if starts with paradigmcos.local\
+    if ($ouPath -notlike 'paradigmcos.local*') { return $null }
+    # Hardcoded exception for paradigmcos.local\Users
+    if ($ouPath -eq 'paradigmcos.local\Users') {
+        $domain = 'paradigmcos.local'
+        $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
+        $dcString = $domainDCs -join ','
+        return "CN=Users,$dcString"
+    }
+    $parts = $ouPath.Split('\')
+    if ($parts.Count -lt 2) { return $null }
+    # First part is domain
+    $domain = $parts[0]
+    $ouParts = $parts[1..($parts.Count-1)]
+    # Reverse OU parts for correct LDAP order (leaf to root)
+    $ouPartsReversed = [System.Collections.ArrayList]::new()
+    $ouPartsReversed.AddRange($ouParts)
+    [void]$ouPartsReversed.Reverse()
+    $ouString = ($ouPartsReversed | ForEach-Object { 'OU=' + $_ }) -join ','
+    # Build DC string
+    $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
+    $dcString = $domainDCs -join ','
+    # Combine
+    $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
+    return $ldapPath
+}
 
 # =========================
 # Initial Page Load
