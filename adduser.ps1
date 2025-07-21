@@ -929,7 +929,6 @@ $ShowPage3 = {
     Update-Summary
 }
 
-
 $ShowDashboard = {
     # Show dashboard controls
     $btnGoToAddUser.Visible = $true
