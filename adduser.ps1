@@ -690,7 +690,6 @@ function Update-SubOUDropdown {
     $cmbMgrRole.Visible = $false
     $selectedOU = $cmbOU.SelectedItem
     if (-not $selectedOU) { return }
-
     # finds all subdirectory options for selected main OU (after second '\')
     $subOUs = @()
     foreach ($ouPath in $script:ouPaths) {
