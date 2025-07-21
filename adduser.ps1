@@ -736,7 +736,6 @@ function Get-FullOUPath {
     # if cannot be found, fallback to main OU
     return $selectedOU
 }
-
 # Event handler for OU selection change
 $cmbOU.Add_SelectedIndexChanged({
     Update-SubOUDropdown
