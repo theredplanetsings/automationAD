@@ -1016,7 +1016,6 @@ function Convert-OUPathToLDAP {
     $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
     return $ldapPath
 }
-
 # =========================
 # Initial Page Load
 # =========================
