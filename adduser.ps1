@@ -710,7 +710,6 @@ function Update-SubOUDropdown {
         $cmbSubOU.Visible = $true
         foreach ($sub in $subOUs) { $cmbSubOU.Items.Add($sub) }
     }
-
     # displays manager role dropdown if "PDC-MANAGEMENT" in main OU selection
     if ($selectedOU -like '*PDC-MANAGEMENT*') {
         $lblMgrRole.Visible = $true
