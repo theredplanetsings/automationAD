@@ -688,7 +688,6 @@ function Update-SubOUDropdown {
     $cmbSubOU.Visible = $false
     $lblMgrRole.Visible = $false
     $cmbMgrRole.Visible = $false
-
     $selectedOU = $cmbOU.SelectedItem
     if (-not $selectedOU) { return }
 
