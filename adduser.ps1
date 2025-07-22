@@ -561,7 +561,6 @@ $cmbOU.Width = 300
 $cmbOU.DropDownStyle = 'DropDownList'
 $cmbOU.Visible = $false
 $form.Controls.Add($cmbOU)
-
 # Sub-OU Selection (CSV-driven)
 $lblSubOU = New-Object System.Windows.Forms.Label
 $lblSubOU.Text = "Sub-Directory:"
@@ -576,7 +575,6 @@ $cmbSubOU.Width = 300
 $cmbSubOU.DropDownStyle = 'DropDownList'
 $cmbSubOU.Visible = $false
 $form.Controls.Add($cmbSubOU)
-
 # Manager Role Dropdown
 $lblMgrRole = New-Object System.Windows.Forms.Label
 $lblMgrRole.Text = "Manager Role:"
@@ -603,7 +601,6 @@ $txtSummary.ScrollBars = 'Vertical'
 $txtSummary.Font = New-Object System.Drawing.Font("Consolas",10)
 $txtSummary.Visible = $false
 $form.Controls.Add($txtSummary)
-
 # OU CSV select button (Page 3)
 $btnSelectOUCsv = New-Object System.Windows.Forms.Button
 $btnSelectOUCsv.Text = "Select OU CSV"
