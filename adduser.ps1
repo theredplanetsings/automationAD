@@ -374,7 +374,6 @@ $txtFirstName.Add_TextChanged({ Update-Username })
 $txtLastName.Add_TextChanged({ Update-Username })
 
 
-
 # =========================
 # Page 2 - Add User Controls
 # =========================
