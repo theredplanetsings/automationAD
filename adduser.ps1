@@ -198,7 +198,6 @@ function Populate-DropdownsFromCsv {
     $cmbDepartment.Items.AddRange(($data | Select-Object -ExpandProperty Department | Sort-Object -Unique))
     $cmbTitle.Items.AddRange(($data | Select-Object -ExpandProperty Title | Sort-Object -Unique))
 }
-
 # Security group CSV loader
 function Load-SecGroupCsv {
     param($csvPath)
