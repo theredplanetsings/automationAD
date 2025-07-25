@@ -60,8 +60,7 @@ function Create-ADUserFromForm {
     $mail = "$username@$domainname"
     $mailNickname = $username
     $proxyAddresses = "smtp:$mail"
-    
-    # Debug output - remove this after testing
+    # console output, not fully necessary but useful for debugging
     Write-Host "Debug Values:"
     Write-Host "Office: '$physicalDeliveryOfficeName'"
     Write-Host "Company: '$company'"
