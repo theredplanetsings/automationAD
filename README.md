@@ -15,329 +15,111 @@ These PowerShell scripts automate common Active Directory tasks, including:
 automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
 ├── interface.ps1              # All-in-one GUI for user creation, user search/summary, license management, and CSV import
-│                                 # Fully matches adduser.ps1 for user creation logic (CSV-driven, additive group assignment, robust OU path conversion)
-├── adduser.ps1                # GUI for creating AD users only (no search/license features; streamlined version of interface.ps1)
+├── adduser.ps1                # GUI for creating AD users only (streamlined version of interface.ps1)
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
-├── secgroups.csv              # Security group mapping CSV (OU path columns, group rows; used for group assignment)
+├── secgroups.csv              # Security group mapping CSV template (OU path columns, group rows)
 └── README.md                  # This file
 ```
 
-> **Note:** Both GUIs (`interface.ps1` and `adduser.ps1`) use the same robust, CSV-driven logic for user creation and group assignment. All group assignment is additive for manager roles, and OU path conversion is handled automatically. See the "Group Assignment Logic (Manager Roles)" section below for details.
+> **Note:** Both GUIs (`interface.ps1` and `adduser.ps1`) use the same robust, CSV-driven logic for user creation and group assignment. All group assignment is additive for manager roles, and OU path conversion is handled automatically.
 
-## Script Details & Differences
+## Script Details
 
 ### `interface.ps1`
-- **Purpose:** All-in-one, non-modular Windows Forms GUI for:
-  - Creating users interactively with a multi-page workflow (identical to `adduser.ps1` for user creation)
+- **Purpose:** All-in-one Windows Forms GUI for:
+  - Creating users interactively with a multi-page workflow
   - CSV import for dropdown population (Office, Company, Department, etc.)
   - Flexible Organizational Unit (OU) selection with two-level dropdown system
   - Searching for and viewing existing users and their properties/groups
   - Managing user licenses (search, view, assign available licenses)
-- **Usage:** Run directly for a self-contained GUI experience. Good for quick testing or single-file deployment.
+- **Usage:** Run directly for a self-contained GUI experience
 - **Features:**
   - **3-Page User Creation Workflow:** Basic info → Detailed attributes → OU selection & summary
-  - **Smart OU Selection:** Automatically shows sub-directory options when needed (External/Internal)
+  - **Smart OU Selection:** Automatically shows sub-directory options when needed
   - **Input Validation:** Username/UPN conflict detection, required field validation
   - **CSV Integration:** Populates dropdowns from CSV data with validation
-  - **CSV-Driven Security Group Assignment:** Uses `secgroups.csv` for OU-to-group mapping (see below)
-  - **Additive Group Assignment:** Manager/Assistant Manager roles receive additional groups as defined in the mapping (never replaces base groups)
+  - **CSV-Driven Security Group Assignment:** Uses `secgroups.csv` for OU-to-group mapping
+  - **Additive Group Assignment:** Manager/Assistant Manager roles receive additional groups
   - **OU Path Conversion:** Converts user-friendly OU paths to LDAP DN format automatically
   - **User Search & Summary:** Search for users, view properties and group memberships
   - **License Management:** View and assign licenses interactively
 
 ### `adduser.ps1`
-- **Purpose:** Windows Forms GUI for creating AD users only. This is a streamlined version of `interface.ps1` containing only the user creation workflow (no user search, summary, or license management features).
-- **Usage:** Run directly in PowerShell for a focused, minimal GUI experience dedicated to user creation.
+- **Purpose:** Streamlined Windows Forms GUI for creating AD users only (no search or license management features)
+- **Usage:** Run directly in PowerShell for a focused user creation experience
 - **Features:**
   - Multi-page user creation workflow (basic info, detailed attributes, OU selection, summary)
   - CSV-driven dropdowns and OU/group mapping (identical to `interface.ps1`)
-  - Additive group assignment logic for manager roles (see details below)
+  - Additive group assignment logic for manager roles
   - Robust OU path conversion utility
-  - No search or license management UI
-
-### `secgroups.csv`
-- **Purpose:** Security group mapping file. Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`). Each row contains group names to assign for that OU. Used by both GUIs to automate group assignment based on OU and manager role.
-- **Usage:** Reference or template for your own OU-to-group mapping. Edit as needed to match your AD structure and group policies. All group assignment is additive for manager roles.
 
 ### `userCreation.ps1`
-- **Purpose:** Standalone script for creating a single AD user with hardcoded/test values. Useful for testing or as a template for scripting.
-- **Usage:** Run directly in PowerShell. Not interactive or GUI-based.
+- **Purpose:** Standalone script for creating a single AD user with hardcoded/test values
+- **Usage:** Run directly in PowerShell. Useful for testing or as a template for scripting
 
 ### `addLicenses.ps1`
-- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline. Not a standalone program, but a collection of reusable script blocks for integration into larger automation workflows.
-- **Usage:** Copy/paste or adapt code blocks as needed in your own automation scripts or GUIs.
+- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline
+- **Usage:** Copy/paste or adapt code blocks as needed in your own automation scripts
 
 ### `userDeletion.ps1`
-- **Purpose:** Command-line script to delete an AD user, remove them from all groups, and confirm actions interactively.
-- **Usage:** Run directly in PowerShell. Follows prompts for username and confirmation.
+- **Purpose:** Command-line script to delete an AD user, remove them from all groups, and confirm actions interactively
+- **Usage:** Run directly in PowerShell. Follows prompts for username and confirmation
 
 ### CSV Files
-- **`correctlyformatted.csv`:** Example of a properly formatted CSV file with all required columns for user creation (Office, Company, State, City, PostalCode, StreetAddress, Department, Title). Use as a template for bulk user creation.
-- **`incorrectlyformatted.csv`:** Example of a CSV missing required columns. Used for testing validation logic in the GUIs/scripts.
+- **`correctlyformatted.csv`:** Example of a properly formatted CSV file with all required columns for user creation (Office, Company, State, City, PostalCode, StreetAddress, Department, Title)
+- **`incorrectlyformatted.csv`:** Example of a CSV missing required columns. Used for testing validation logic
+- **`secgroups.csv`:** Security group mapping template. Each column header represents an OU path; each row contains group names to assign for that OU
 
 ## Prerequisites
 
-- **Operating System:** Windows 10/11 or Windows Server.
-- **PowerShell:** Version 5.1 or later.
+- **Operating System:** Windows 10/11 or Windows Server
+- **PowerShell:** Version 5.1 or later
 - **Modules:** ActiveDirectory (provided by RSAT), Microsoft.Entra (for license management)
-- **Permissions:** Administrator privileges or an account with sufficient AD and Entra rights for creating, modifying, deleting user objects, and managing licenses.
+- **Permissions:** Administrator privileges or an account with sufficient AD and Entra rights for creating, modifying, deleting user objects, and managing licenses
 
 ## Usage Overview
 
-### Interactive/GUI User Creation, Search, and License Management
-- Use `interface.ps1` for a self-contained GUI that supports:
-  - **Adding new users** with a 3-page workflow:
-    - Page 1: Basic information (Name, Username, Company) + CSV selection
-    - Page 2: Detailed attributes (Office, Department, Title, Address, Phone)
-    - Page 3: Organizational Unit selection + Summary review
-  - **OU Selection:** Choose from multiple organizational units with automatic sub-directory selection:
-    - Users (direct placement)
-    - Service Accounts (direct placement)
-    - PDC-CONSTRUCTION\USERS (requires External/Internal selection)
-    - PDC-HQ\USERS (requires External/Internal selection)
-    - PDC-SERVICES\USERS (requires External/Internal selection)
-    - PDC-MANAGEMENT (multi-property sub-OU selection)
-  - **Searching** for existing users and viewing their properties/groups
-  - **Viewing and assigning** licenses to users
+### Interactive User Creation
+Use `interface.ps1` or `adduser.ps1` for GUI-based user creation with a 3-page workflow:
+1. **Page 1:** Basic information (Name, Username, Company) + CSV selection
+2. **Page 2:** Detailed attributes (Office, Department, Title, Address, Phone)
+3. **Page 3:** Organizational Unit selection + Summary review
 
-### Bulk User Creation and Security Group Assignment from CSV
-- Prepare a CSV matching the format of `correctlyformatted.csv` for user attributes.
-- For security group assignment automation, use the provided `secgroups.csv` as your mapping file:
-  - Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`, etc.).
-  - For each OU column, enter the security groups (one per row) that should be assigned to users created in that OU.
-  - Example:
-    ```csv
-    paradigmcos.local\Users,paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users
-    All_Paradigm_Staff@paradigmcos.com,All_Management_Staff@paradigmcos.com
-    ```
+### OU Selection
+The scripts support flexible OU selection with automatic sub-directory options based on your AD structure.
 
-**Group Assignment Logic (Manager Roles):**
-- Users always receive all non-manager groups for their OU.
-- If "Assistant Manager" is selected, they also receive all groups in their OU containing `_AsstMgr_` or `_Asstmgr_` (additive).
-- If "Manager" is selected, they also receive all groups in their OU containing `_Mgr_` (additive).
-- This ensures that manager role groups are assigned in addition to the base OU groups, never as a replacement.
-- The GUI scripts import this mapping and automatically assign the specified groups when creating a user in the matching OU, applying the above logic for manager roles.
-- **Required User CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
-- CSV data automatically populates dropdown menus for consistent data entry.
+### Security Group Assignment from CSV
+For automated group assignment, configure the `secgroups.csv` file:
+- Each column header is an OU path (e.g., `domain.local\Users`, `domain.local\Department\Users`)
+- Each row contains group names to assign for that OU
+- Example format:
+  ```csv
+  domain.local\Users,domain.local\Management\Users
+  All_Staff_Group,All_Management_Group
+  Basic_Access_Group,Advanced_Access_Group
+  ```
 
-### License Assignment
-- Use the license management page in `interface.ps1` for interactive assignment.
-- Use code snippets from `addLicenses.ps1` in your own scripts or automation tools as needed.
+### Group Assignment Logic (Manager Roles)
+- Users always receive all non-manager groups for their OU
+- If "Assistant Manager" is selected, they also receive groups containing `_AsstMgr_` or `_Asstmgr_` (modify as needed)
+- If "Manager" is selected, they also receive groups containing `_Mgr_` (modify as needed)
+- Manager role groups are assigned in addition to base OU groups, never as a replacement
 
-### User Deletion
-- Run `userDeletion.ps1` and follow the prompts.
+### Required CSV Columns for User Data
+Office, Company, State, City, PostalCode, StreetAddress, Department, Title
 
 ## Customization & Considerations
 
-- **OU Paths:** The interface includes built-in OU selection and now supports external mapping of OU paths to security groups via CSV. Use `secgroups.csv` as your starting point for OU-to-group mapping.
-- **Security Group Mapping CSV:** To automate group assignment, fill in the security groups for each OU column in `secgroups.csv`. Each cell should contain a group name to assign for that OU (one per row).
-- **Domain Configuration:** Update domain references (`paradigmcos.com`, `paradigmcos.local`) to match your environment.
-- **Default Passwords:** Change hardcoded passwords (`Password123@`) before production use.
-- **CSV Structure:** Modify required columns in the script if your organization uses different attribute names.
-- **Testing:** Always test in a lab environment before production.
-- **UI Controls:** The GUI disables typing in selection lists and license displays to prevent accidental edits; only selection is allowed where appropriate.
-- **Validation:** The interface includes comprehensive validation for username conflicts, UPN conflicts, and required field completion.
-
-## Disclaimer
-
-These scripts modify live Active Directory data. Use caution and perform thorough testing in a controlled environment before using in production. The scripts are provided "AS IS" without warranty of any kind.
-
-## License
-
-This project is provided as-is without any warranty. Use or modify it at your own risk.
-
-### `secgroups.csv`
-- **Purpose:** Security group mapping file. Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`). Each row contains group names to assign for that OU. Used by both GUIs to automate group assignment based on OU and manager role.
-- **Usage:** Reference or template for your own OU-to-group mapping. Edit as needed to match your AD structure and group policies. All group assignment is additive for manager roles.
-
-### `userCreation.ps1`
-- **Purpose:** Standalone script for creating a single AD user with hardcoded/test values. Useful for testing or as a template for scripting.
-- **Usage:** Run directly in PowerShell. Not interactive or GUI-based.
-
-### `addLicenses.ps1`
-- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline. Not a standalone program, but a collection of reusable script blocks for integration into larger automation workflows.
-- **Usage:** Copy/paste or adapt code blocks as needed in your own automation scripts or GUIs.
-
-### `userDeletion.ps1`
-- **Purpose:** Command-line script to delete an AD user, remove them from all groups, and confirm actions interactively.
-- **Usage:** Run directly in PowerShell. Follows prompts for username and confirmation.
-
-### CSV Files
-- **`correctlyformatted.csv`:** Example of a properly formatted CSV file with all required columns for user creation (Office, Company, State, City, PostalCode, StreetAddress, Department, Title). Use as a template for bulk user creation.
-- **`incorrectlyformatted.csv`:** Example of a CSV missing required columns. Used for testing validation logic in the GUIs/scripts.
-
-## Prerequisites
-
-- **Operating System:** Windows 10/11 or Windows Server.
-- **PowerShell:** Version 5.1 or later.
-- **Modules:** ActiveDirectory (provided by RSAT), Microsoft.Entra (for license management)
-- **Permissions:** Administrator privileges or an account with sufficient AD and Entra rights for creating, modifying, deleting user objects, and managing licenses.
-
-## Usage Overview
-
-### Interactive/GUI User Creation, Search, and License Management
-- Use `interface.ps1` for a self-contained GUI that supports:
-  - **Adding new users** with a 3-page workflow:
-    - Page 1: Basic information (Name, Username, Company) + CSV selection
-    - Page 2: Detailed attributes (Office, Department, Title, Address, Phone)
-    - Page 3: Organizational Unit selection + Summary review
-  - **OU Selection:** Choose from multiple organizational units with automatic sub-directory selection:
-    - Users (direct placement)
-    - Service Accounts (direct placement)
-    - PDC-CONSTRUCTION\USERS (requires External/Internal selection)
-    - PDC-HQ\USERS (requires External/Internal selection)
-    - PDC-SERVICES\USERS (requires External/Internal selection)
-    - PDC-MANAGEMENT (multi-property sub-OU selection)
-  - **Searching** for existing users and viewing their properties/groups
-  - **Viewing and assigning** licenses to users
-
-### Bulk User Creation and Security Group Assignment from CSV
-- Prepare a CSV matching the format of `correctlyformatted.csv` for user attributes.
-- For security group assignment automation, use the provided `secgroups.csv` as your mapping file:
-  - Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`, etc.).
-  - For each OU column, enter the security groups (one per row) that should be assigned to users created in that OU.
-  - Example:
-    ```csv
-    paradigmcos.local\Users,paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users
-    All_Paradigm_Staff@paradigmcos.com,All_Management_Staff@paradigmcos.com
-    ```
-
-**Group Assignment Logic (Manager Roles):**
-- Users always receive all non-manager groups for their OU.
-- If "Assistant Manager" is selected, they also receive all groups in their OU containing `_AsstMgr_` or `_Asstmgr_` (additive).
-- If "Manager" is selected, they also receive all groups in their OU containing `_Mgr_` (additive).
-- This ensures that manager role groups are assigned in addition to the base OU groups, never as a replacement.
-- The GUI scripts import this mapping and automatically assign the specified groups when creating a user in the matching OU, applying the above logic for manager roles.
-- **Required User CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
-- CSV data automatically populates dropdown menus for consistent data entry.
-
-### License Assignment
-- Use the license management page in `interface.ps1` for interactive assignment.
-- Use code snippets from `addLicenses.ps1` in your own scripts or automation tools as needed.
-
-### User Deletion
-- Run `userDeletion.ps1` and follow the prompts.
-
-## Customization & Considerations
-
-- **OU Paths:** The interface includes built-in OU selection and now supports external mapping of OU paths to security groups via CSV. Use `secgroups.csv` as your starting point for OU-to-group mapping.
-- **Security Group Mapping CSV:** To automate group assignment, fill in the security groups for each OU column in `secgroups.csv`. Each cell should contain a group name to assign for that OU (one per row).
-- **Domain Configuration:** Update domain references (`paradigmcos.com`, `paradigmcos.local`) to match your environment.
-- **Default Passwords:** Change hardcoded passwords (`Password123@`) before production use.
-- **CSV Structure:** Modify required columns in the script if your organization uses different attribute names.
-- **Testing:** Always test in a lab environment before production.
-- **UI Controls:** The GUI disables typing in selection lists and license displays to prevent accidental edits; only selection is allowed where appropriate.
-- **Validation:** The interface includes comprehensive validation for username conflicts, UPN conflicts, and required field completion.
-
-## Disclaimer
-
-These scripts modify live Active Directory data. Use caution and perform thorough testing in a controlled environment before using in production. The scripts are provided "AS IS" without warranty of any kind.
-
-## License
-
-This project is provided as-is without any warranty. Use or modify it at your own risk.
-
-#### `secgroups.csv`
-- **Purpose:** Example security group mapping file. Each column header is an OU path; each row contains group names to assign for that OU. Used by the GUI to automate group assignment based on OU and manager role.
-- **Usage:** Reference or template for your own OU-to-group mapping. Edit as needed to match your AD structure and group policies.
-
-#### `userCreation.ps1`
-- **Purpose:** Standalone script for creating a single AD user with hardcoded/test values. Useful for testing or as a template for scripting.
-- **Usage:** Run directly in PowerShell. Not interactive or GUI-based.
-
-#### `interface.ps1`
-- **Purpose:** All-in-one, non-modular Windows Forms GUI for:
-  - Creating users interactively with multi-page workflow
-  - CSV import for dropdown population (Office, Company, Department, etc.)
-  - Flexible Organizational Unit (OU) selection with two-level dropdown system
-  - Searching for and viewing existing users and their properties/groups
-  - Managing user licenses (search, view, assign available licenses)
-- **Usage:** Run directly for a self-contained GUI experience. Good for quick testing or single-file deployment.
-- **Features:**
-  - **3-Page User Creation Workflow:** Basic info → Detailed attributes → OU selection & summary
-  - **Smart OU Selection:** Automatically shows sub-directory options when needed (External/Internal)
-  - **Input Validation:** Username/UPN conflict detection, required field validation
-  - **CSV Integration:** Populates dropdowns from CSV data with validation
-- **Note:** Not designed for code reuse or modularity.
-
-#### `addLicenses.ps1`
-- **Purpose:** Reference/utility script containing general-purpose code snippets for assigning and managing licenses in Microsoft Entra (Azure AD) or MSOnline. Not a standalone program, but a collection of reusable script blocks for integration into larger automation workflows.
-- **Usage:** Copy/paste or adapt code blocks as needed in your own automation scripts or GUIs.
-
-#### `userDeletion.ps1`
-- **Purpose:** Command-line script to delete an AD user, remove them from all groups, and confirm actions interactively.
-- **Usage:** Run directly in PowerShell. Follows prompts for username and confirmation.
-
-#### CSV Files
-- **`correctlyformatted.csv`:** Example of a properly formatted CSV file with all required columns for user creation (Office, Company, State, City, PostalCode, StreetAddress, Department, Title). Use as a template for bulk user creation.
-- **`incorrectlyformatted.csv`:** Example of a CSV missing required columns. Used for testing validation logic in the GUIs/scripts.
-
-## Prerequisites
-
-- **Operating System:** Windows 10/11 or Windows Server.
-- **PowerShell:** Version 5.1 or later.
-- **Modules:** ActiveDirectory (provided by RSAT), Microsoft.Entra (for license management)
-- **Permissions:** Administrator privileges or an account with sufficient AD and Entra rights for creating, modifying, deleting user objects, and managing licenses.
-
-## Usage Overview
-
-### Interactive/GUI User Creation, Search, and License Management
-- Use `interface.ps1` for a self-contained GUI that supports:
-  - **Adding new users** with a 3-page workflow:
-    - Page 1: Basic information (Name, Username, Company) + CSV selection
-    - Page 2: Detailed attributes (Office, Department, Title, Address, Phone)
-    - Page 3: Organizational Unit selection + Summary review
-  - **OU Selection:** Choose from multiple organizational units with automatic sub-directory selection:
-    - Users (direct placement)
-    - Service Accounts (direct placement)  
-    - PDC-CONSTRUCTION\USERS (requires External/Internal selection)
-    - PDC-HQ\USERS (requires External/Internal selection)
-    - PDC-SERVICES\USERS (requires External/Internal selection)
-  - **Searching** for existing users and viewing their properties/groups
-  - **Viewing and assigning** licenses to users
-
-### Bulk User Creation and Security Group Assignment from CSV
-- Prepare a CSV matching the format of `correctlyformatted.csv` for user attributes.
-
-For security group assignment automation, use the provided `sgroups_template.csv` as your mapping file:
-  - Each column header is an OU path (e.g., `paradigmcos.local\Users`, `paradigmcos.local\PDC-MANAGEMENT\360hstreet\Users`, etc.).
-  - For each OU column, enter the security groups (comma-separated) that should be assigned to users created in that OU.
-  - Example row:
-    ```csv
-    paradigmcos.local\\Users,paradigmcos.local\\PDC-MANAGEMENT\\360hstreet\\Users
-    All_Paradigm_Staff@paradigmcos.com,All_Management_Staff@paradigmcos.com
-    ```
-
-**Group Assignment Logic (Manager Roles):**
-- Users always receive all non-manager groups for their OU.
-- If "Assistant Manager" is selected, they also receive all groups in their OU containing `_AsstMgr_` or `_Asstmgr_` (additive).
-- If "Manager" is selected, they also receive all groups in their OU containing `_Mgr_` (additive).
-- This ensures that manager role groups are assigned in addition to the base OU groups, never as a replacement.
-
-- The GUI script imports this mapping and automatically assigns the specified groups when creating a user in the matching OU, applying the above logic for manager roles.
-- **Required User CSV Columns:** Office, Company, State, City, PostalCode, StreetAddress, Department, Title
-- CSV data automatically populates dropdown menus for consistent data entry.
-
-### License Assignment
-- Use the license management page in `interface.ps1` for interactive assignment.
-- Use code snippets from `addLicenses.ps1` in your own scripts or automation tools as needed.
-
-### User Deletion
-- Run `userDeletion.ps1` and follow the prompts.
-
-## Customization & Considerations
-
-- **OU Paths:** The interface includes built-in OU selection and now supports external mapping of OU paths to security groups via CSV. Use `sgroups_template.csv` as your starting point for OU-to-group mapping.
-- **Security Group Mapping CSV:** To automate group assignment, fill in the security groups for each OU column in `sgroups_template.csv`. Each cell should contain a comma-separated list of group names to assign for that OU.
-- **Domain Configuration:** Update domain references (`paradigmcos.com`, `paradigmcos.local`) to match your environment.
-- **Default Passwords:** Change hardcoded passwords (`Password123@`) before production use.
-- **CSV Structure:** Modify required columns in the script if your organization uses different attribute names.
-- **Testing:** Always test in a lab environment before production.
-- **UI Controls:** The GUI disables typing in selection lists and license displays to prevent accidental edits; only selection is allowed where appropriate.
-- **Validation:** The interface includes comprehensive validation for username conflicts, UPN conflicts, and required field completion.
+- **Domain Configuration:** Update domain references in the scripts to match your environment
+- **Default Passwords:** Change hardcoded passwords before production use
+- **CSV Structure:** Modify required columns in the script if your organization uses different attribute names
+- **Security Group Mapping:** Customize `secgroups.csv` to match your AD structure and group policies
+- **Testing:** Always test in a lab environment before production
+- **UI Controls:** The GUI prevents accidental edits in selection lists and license displays
+- **Validation:** Comprehensive validation for username conflicts, UPN conflicts, and required field completion
 
 ## Disclaimer
 
