@@ -116,7 +116,6 @@ function Create-ADUserFromForm {
             -OfficePhone $telephoneNum `
             -EmailAddress $mail `
             -Replace $attributesToSet
-            
         # Assigns security groups based on OU selection and manager role (additive)
         $groupsToAdd = @()
         if ($script:ouGroups.ContainsKey($ouPath)) {
