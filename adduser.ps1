@@ -166,7 +166,6 @@ $form.MaximizeBox = $false
 # =========================
 # CSV Import/Validation
 # =========================
-
 # Required columns for user property CSV
 $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddress","Department","Title")
 $script:csvData = $null
