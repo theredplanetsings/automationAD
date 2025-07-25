@@ -171,7 +171,6 @@ $form.MaximizeBox = $false
 $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddress","Department","Title")
 $script:csvData = $null
 $script:csvError = $false
-
 # Security group CSV (OU/group mapping)
 $script:secGroupCsv = $null
 $script:secGroupCsvError = $false
