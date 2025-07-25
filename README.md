@@ -1,4 +1,3 @@
-
 # Active Directory Automation Tools
 
 These PowerShell scripts automate common Active Directory tasks, including:
@@ -21,7 +20,7 @@ automationAD
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
 ├── secgroups.csv              # Security group mapping CSV template (OU path columns, group rows)
-└── README.md                  # This file
+└── README.md                  # self explanatory
 ```
 
 > **Note:** Both GUIs (`interface.ps1` and `adduser.ps1`) use the same robust, CSV-driven logic for user creation and group assignment. All group assignment is additive for manager roles, and OU path conversion is handled automatically.
