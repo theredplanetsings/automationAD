@@ -184,7 +184,7 @@ function Convert-OUPathToLDAP {
     if (-not $ouPath -or $ouPath.Trim() -eq '') { return $null }
     # Only process if starts with paradigmcos.local\
     if ($ouPath -notlike 'paradigmcos.local*') { return $null }
-    # Hardcoded exception for paradigmcos.local\Users
+    # Hardcoded exception for "paradigmcos.local\Users"
     if ($ouPath -eq 'paradigmcos.local\Users') {
         $domain = 'paradigmcos.local'
         $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }

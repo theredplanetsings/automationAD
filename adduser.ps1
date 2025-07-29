@@ -72,7 +72,7 @@ function Create-ADUserFromForm {
     Write-Host "Postal: '$postalCode'"
     Write-Host "Phone: '$telephoneNum'"
     
-    # Validate OU selection
+    # Validates our OU selection
     $ouPath = Get-FullOUPath
     if (-not $ouPath) {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
