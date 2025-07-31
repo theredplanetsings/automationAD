@@ -13,7 +13,7 @@ Add-Type -AssemblyName System.Drawing
 # User Creation Functions
 # =========================
 function Create-ADUserFromForm {
-    # gather inputs
+    # gathers inputs
     $firstName = $txtFirstName.Text.Trim()
     $lastName = $txtLastName.Text.Trim()
     if (-not $firstName -or -not $lastName) {
@@ -26,7 +26,7 @@ function Create-ADUserFromForm {
     $userPrincipalName = "$username@$domainname"
     $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
     
-    # Check if username already exists
+    # Checks if username already exists
     try {
         $existingUser = Get-ADUser -Filter "SamAccountName -eq '$username'" -ErrorAction SilentlyContinue
         if ($existingUser) {
@@ -34,9 +34,9 @@ function Create-ADUserFromForm {
             return
         }
     } catch {
-        # Continue if user doesn't exist
+        # Continues if user doesn't exist
     }
-    # Check if UPN already exists
+    # Checks if UPN already exists
     try {
         $existingUPN = Get-ADUser -Filter "UserPrincipalName -eq '$userPrincipalName'" -ErrorAction SilentlyContinue
         if ($existingUPN) {
@@ -44,9 +44,9 @@ function Create-ADUserFromForm {
             return
         }
     } catch {
-        # Continue if UPN doesn't exist
+        # Continues if UPN doesn't exist
     }
-    # retrieve values from dropdowns and textboxes - convert to strings
+    # retrieves values from dropdowns and textboxes - convert to strings
     $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
     $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
     $st = if ($cmbState.SelectedItem) { $cmbState.SelectedItem.ToString() } else { "" }
@@ -77,7 +77,7 @@ function Create-ADUserFromForm {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-    # Convert to LDAP path for AD
+    # Converts to LDAP path for AD
     $ldapOUPath = Convert-OUPathToLDAP $ouPath
     if (-not $ldapOUPath) {
         [System.Windows.Forms.MessageBox]::Show("Could not convert OU path to LDAP format. Please check your OU selection.", "OU Path Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
@@ -119,7 +119,7 @@ function Create-ADUserFromForm {
         if ($script:ouGroups.ContainsKey($ouPath)) {
             $allGroups = $script:ouGroups[$ouPath]
             $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
-            # Assign all non-manager groups
+            # Assigns all non-manager groups
             $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
             $groupsToAdd = @($baseGroups)
             if ($mgrRole -eq "Assistant Manager") {
