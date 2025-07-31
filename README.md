@@ -106,6 +106,6 @@ Office, Company, State, City, PostalCode, StreetAddress, Department, Title
 
 These scripts modify live Active Directory data. Use caution and perform thorough testing in a controlled environment before using in production. The scripts are provided "AS IS" without warranty of any kind.
 
-## License
+## Licence
 
-This project is provided as-is without any warranty. Use or modify it at your own risk.
+Creative Commons Zero v1.0 Universal (CC0) - Public domain dedication for maximum freedom
