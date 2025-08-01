@@ -27,7 +27,7 @@ function Create-ADUserFromForm {
     $userPrincipalName = "$username@$domainname"
     $defaultpassword = ConvertTo-SecureString "Password123@" -AsPlainText -Force
     
-    # Check if username already exists
+    # Checks if username already exists
     try {
         $existingUser = Get-ADUser -Filter "SamAccountName -eq '$username'" -ErrorAction SilentlyContinue
         if ($existingUser) {
@@ -35,9 +35,9 @@ function Create-ADUserFromForm {
             return
         }
     } catch {
-        # Continue if user doesn't exist
+        # Continues if user doesn't exist
     }
-    # Check if UPN already exists
+    # Checks if UPN already exists
     try {
         $existingUPN = Get-ADUser -Filter "UserPrincipalName -eq '$userPrincipalName'" -ErrorAction SilentlyContinue
         if ($existingUPN) {
@@ -45,9 +45,9 @@ function Create-ADUserFromForm {
             return
         }
     } catch {
-        # Continue if UPN doesn't exist
+        # Continues if UPN doesn't exist
     }
-    # retrieve values from dropdowns and textboxes - convert to strings
+    # retrieves values from dropdowns and textboxes - convert to strings
     $physicalDeliveryOfficeName = if ($cmbOffice.SelectedItem) { $cmbOffice.SelectedItem.ToString() } else { "" }
     $company = if ($cmbCompany.SelectedItem) { $cmbCompany.SelectedItem.ToString() } else { "" }
     $st = if ($cmbState.SelectedItem) { $cmbState.SelectedItem.ToString() } else { "" }
@@ -78,7 +78,7 @@ function Create-ADUserFromForm {
         [System.Windows.Forms.MessageBox]::Show("Please select a valid Organizational Unit. If you selected a main OU with sub-directories, you must also select a sub-directory.", "OU Selection Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         return
     }
-    # Convert to LDAP path for AD
+    # Converts to LDAP path for AD
     $ldapOUPath = Convert-OUPathToLDAP $ouPath
     if (-not $ldapOUPath) {
         [System.Windows.Forms.MessageBox]::Show("Could not convert OU path to LDAP format. Please check your OU selection.", "OU Path Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
@@ -640,7 +640,7 @@ $form.Controls.Add($btnBack2)
 # =========================
 # OU Tree Structure (supports arbitrary depth)
 # =========================
-# CSV-driven OU dropdown initialization
+# CSV-driven OU dropdown initialisation
 function Initialize-OUDropdowns {
     $cmbOU.Items.Clear()
     $cmbSubOU.Items.Clear()
@@ -777,9 +777,9 @@ function Update-Summary {
 # =========================
 ## contents of page 1 -- add user path
 $ShowPage1 = {
-    # Hide dashboard controls
+    # Hides dashboard controls
     $btnGoToAddUser.Visible = $false
-    # Show add user page 1 controls
+    # Shows add user page 1 controls
     $lblFirstName.Visible = $true
     $txtFirstName.Visible = $true
     $lblLastName.Visible = $true
@@ -870,7 +870,7 @@ $ShowPage2 = {
 
 ## contents of page 3 -- add user path
 $ShowPage3 = {
-    # Hide all page 2 controls
+    # Hides all page 2 controls
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
     $lblDepartment.Visible = $false
@@ -890,7 +890,7 @@ $ShowPage3 = {
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
 
-    # Hide all page 1 controls
+    # Hides all page 1 controls
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
     $lblLastName.Visible = $false
@@ -903,7 +903,7 @@ $ShowPage3 = {
     $btnNext.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
 
-    # Show only page 3 controls
+    # Shows only page 3 controls
     Initialize-OUDropdowns
     $lblOU.Visible = $true
     $cmbOU.Visible = $true
@@ -916,9 +916,9 @@ $ShowPage3 = {
 }
 
 $ShowDashboard = {
-    # Show dashboard controls
+    # Shows dashboard controls
     $btnGoToAddUser.Visible = $true
-    # Hide all add user controls (page 1, 2, 3)
+    # Hides all add user controls (page 1, 2, 3)
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
     $lblLastName.Visible = $false
@@ -976,7 +976,7 @@ function Convert-OUPathToLDAP {
         [string]$ouPath
     )
     if (-not $ouPath -or $ouPath.Trim() -eq '') { return $null }
-    # Only process if starts with paradigmcos.local\
+    # Only processes if starts with paradigmcos.local\
     if ($ouPath -notlike 'paradigmcos.local*') { return $null }
     # Hardcoded exception for paradigmcos.local\Users
     if ($ouPath -eq 'paradigmcos.local\Users') {
@@ -990,15 +990,15 @@ function Convert-OUPathToLDAP {
     # First part is domain
     $domain = $parts[0]
     $ouParts = $parts[1..($parts.Count-1)]
-    # Reverse OU parts for correct LDAP order (leaf to root)
+    # Reverses OU parts for correct LDAP order (leaf to root)
     $ouPartsReversed = [System.Collections.ArrayList]::new()
     $ouPartsReversed.AddRange($ouParts)
     [void]$ouPartsReversed.Reverse()
     $ouString = ($ouPartsReversed | ForEach-Object { 'OU=' + $_ }) -join ','
-    # Build DC string
+    # Builds DC string
     $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
     $dcString = $domainDCs -join ','
-    # Combine
+    # Combines
     $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
     return $ldapPath
 }

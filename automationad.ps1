@@ -1,6 +1,7 @@
 <#============================================
   Automation AD - Main Program
 ============================================#>
+
 # =========================
 # Imports and Initial Setup
 # =========================
@@ -13,7 +14,7 @@ Add-Type -AssemblyName System.Drawing
 # User Creation Functions
 # =========================
 function Create-ADUserFromForm {
-    # gathers inputs
+    # gather inputs
     $firstName = $txtFirstName.Text.Trim()
     $lastName = $txtLastName.Text.Trim()
     if (-not $firstName -or -not $lastName) {
@@ -119,7 +120,7 @@ function Create-ADUserFromForm {
         if ($script:ouGroups.ContainsKey($ouPath)) {
             $allGroups = $script:ouGroups[$ouPath]
             $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
-            # Assigns all non-manager groups
+            # Assign all non-manager groups
             $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
             $groupsToAdd = @($baseGroups)
             if ($mgrRole -eq "Assistant Manager") {
@@ -639,7 +640,7 @@ $form.Controls.Add($btnBack2)
 # =========================
 # OU Tree Structure (supports arbitrary depth)
 # =========================
-# CSV-driven OU dropdown initialization
+# CSV-driven OU dropdown initialisation
 function Initialize-OUDropdowns {
     $cmbOU.Items.Clear()
     $cmbSubOU.Items.Clear()
@@ -776,9 +777,9 @@ function Update-Summary {
 # =========================
 ## contents of page 1 -- add user path
 $ShowPage1 = {
-    # Hide dashboard controls
+    # Hides dashboard controls
     $btnGoToAddUser.Visible = $false
-    # Show add user page 1 controls
+    # Shows add user page 1 controls
     $lblFirstName.Visible = $true
     $txtFirstName.Visible = $true
     $lblLastName.Visible = $true
@@ -869,7 +870,7 @@ $ShowPage2 = {
 
 ## contents of page 3 -- add user path
 $ShowPage3 = {
-    # Hide all page 2 controls
+    # Hides all page 2 controls
     $lblOffice.Visible = $false
     $cmbOffice.Visible = $false
     $lblDepartment.Visible = $false
@@ -889,7 +890,7 @@ $ShowPage3 = {
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
 
-    # Hide all page 1 controls
+    # Hides all page 1 controls
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
     $lblLastName.Visible = $false
@@ -902,7 +903,7 @@ $ShowPage3 = {
     $btnNext.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
 
-    # Show only page 3 controls
+    # Shows only page 3 controls
     Initialize-OUDropdowns
     $lblOU.Visible = $true
     $cmbOU.Visible = $true
@@ -915,9 +916,9 @@ $ShowPage3 = {
 }
 
 $ShowDashboard = {
-    # Show dashboard controls
+    # Shows dashboard controls
     $btnGoToAddUser.Visible = $true
-    # Hide all add user controls (page 1, 2, 3)
+    # Hides all add user controls (page 1, 2, 3)
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
     $lblLastName.Visible = $false
@@ -975,7 +976,7 @@ function Convert-OUPathToLDAP {
         [string]$ouPath
     )
     if (-not $ouPath -or $ouPath.Trim() -eq '') { return $null }
-    # Only process if starts with paradigmcos.local\
+    # Only processes if starts with paradigmcos.local\
     if ($ouPath -notlike 'paradigmcos.local*') { return $null }
     # Hardcoded exception for paradigmcos.local\Users
     if ($ouPath -eq 'paradigmcos.local\Users') {
@@ -989,15 +990,15 @@ function Convert-OUPathToLDAP {
     # First part is domain
     $domain = $parts[0]
     $ouParts = $parts[1..($parts.Count-1)]
-    # Reverse OU parts for correct LDAP order (leaf to root)
+    # Reverses OU parts for correct LDAP order (leaf to root)
     $ouPartsReversed = [System.Collections.ArrayList]::new()
     $ouPartsReversed.AddRange($ouParts)
     [void]$ouPartsReversed.Reverse()
     $ouString = ($ouPartsReversed | ForEach-Object { 'OU=' + $_ }) -join ','
-    # Build DC string
+    # Builds DC string
     $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
     $dcString = $domainDCs -join ','
-    # Combine
+    # Combines
     $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
     return $ldapPath
 }
