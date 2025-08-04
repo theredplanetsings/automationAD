@@ -997,7 +997,7 @@ function Convert-OUPathToLDAP {
     # Builds DC string
     $domainDCs = $domain.Split('.') | ForEach-Object { 'DC=' + $_ }
     $dcString = $domainDCs -join ','
-    # Combines
+    # Combines these
     $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
     return $ldapPath
 }
