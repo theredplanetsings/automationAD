@@ -648,7 +648,7 @@ function Initialize-OUDropdowns {
     $lblMgrRole.Visible = $false
     $cmbMgrRole.Visible = $false
 
-    # Only show first two directory levels in OU dropdown
+    # Only shows first two directory levels in OU dropdown
     $cmbOU.Items.Clear()
     $mainOUs = @()
     foreach ($ouPath in $script:ouPaths) {
