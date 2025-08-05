@@ -888,7 +888,6 @@ $ShowPage3 = {
     $txtTelephone.Visible = $false
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
-
     # Hides all page 1 controls
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
@@ -901,7 +900,6 @@ $ShowPage3 = {
     $btnSelectCsv.Visible = $false
     $btnNext.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
-
     # Shows only page 3 controls
     Initialize-OUDropdowns
     $lblOU.Visible = $true
