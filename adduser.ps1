@@ -120,7 +120,7 @@ function Create-ADUserFromForm {
         if ($script:ouGroups.ContainsKey($ouPath)) {
             $allGroups = $script:ouGroups[$ouPath]
             $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
-            # Assign all non-manager groups
+            # Assigns all non-manager groups
             $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
             $groupsToAdd = @($baseGroups)
             if ($mgrRole -eq "Assistant Manager") {
