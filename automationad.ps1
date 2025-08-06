@@ -121,17 +121,55 @@ function Create-ADUserFromForm {
         if ($script:ouGroups.ContainsKey($ouPath)) {
             $allGroups = $script:ouGroups[$ouPath]
             $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
-            # Assigns all non-manager groups
+            
+            # CUSTOMIZATION GUIDE: Security Group Pattern Matching
+            # ====================================================
+            # The patterns below determine which groups are assigned based on naming conventions.
+            # You can modify these patterns to match your organization's group naming standards.
+            
+            # BASE GROUPS: Assigned to ALL users in the selected OU
+            # Excludes any groups containing manager-specific patterns
+            # To add more exclusion patterns, use: ($_ -notmatch 'pattern1') -and ($_ -notmatch 'pattern2')
+            # Examples of additional patterns to exclude:
+            #   -notmatch '_Admin_'     (excludes admin groups)
+            #   -notmatch '_Lead_'      (excludes lead/supervisor groups)
+            #   -notmatch '_Senior_'    (excludes senior role groups)
             $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
             $groupsToAdd = @($baseGroups)
+            
             if ($mgrRole -eq "Assistant Manager") {
+                # ASSISTANT MANAGER GROUPS: Additional groups for Assistant Managers
+                # Current patterns: '_AsstMgr_' or '_Asstmgr_'
+                # To add more patterns, use: ($_ -match 'pattern1') -or ($_ -match 'pattern2')
+                # Examples of additional patterns to include:
+                #   -or ($_ -match '_AssistantMgr_')    (alternative naming)
+                #   -or ($_ -match '_AsstManager_')     (alternative naming)
+                #   -or ($_ -match '_Deputy_')          (deputy manager groups)
+                #   -or ($_ -match '_Supervisor_')      (supervisor groups)
                 $asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr)_' }
                 $groupsToAdd += $asstMgrGroups
             } elseif ($mgrRole -eq "Manager") {
+                # MANAGER GROUPS: Additional groups for Managers
+                # Current pattern: '_Mgr_'
+                # To add more patterns, use: ($_ -match 'pattern1') -or ($_ -match 'pattern2')
+                # Examples of additional patterns to include:
+                #   -or ($_ -match '_Manager_')         (full word manager)
+                #   -or ($_ -match '_Director_')        (director level groups)
+                #   -or ($_ -match '_Lead_')            (team lead groups)
+                #   -or ($_ -match '_Admin_')           (administrative groups)
+                #   -or ($_ -match '_Senior_')          (senior level access)
                 $mgrGroups = $allGroups | Where-Object { $_ -match '_Mgr_' }
                 $groupsToAdd += $mgrGroups
             }
-            # Removes duplicates
+            
+            # PATTERN MATCHING EXAMPLES:
+            # =========================
+            # Group Name: "Sales_AsstMgr_Security" → Matches Assistant Manager pattern
+            # Group Name: "IT_Mgr_Access" → Matches Manager pattern  
+            # Group Name: "All_Staff_Access" → Matches Base Groups (no manager patterns)
+            # Group Name: "Finance_Director_Rights" → Would match if you add '_Director_' pattern
+            
+            # Removes duplicates in case a group appears in multiple categories
             $groupsToAdd = $groupsToAdd | Sort-Object -Unique
         }
         # Adds user to each group
