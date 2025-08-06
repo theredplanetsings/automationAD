@@ -134,23 +134,30 @@ function Create-ADUserFromForm {
             #   -notmatch '_Admin_'     (excludes admin groups)
             #   -notmatch '_Lead_'      (excludes lead/supervisor groups)
             #   -notmatch '_Senior_'    (excludes senior role groups)
-            $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
+            $baseGroups = $allGroups | Where-Object { 
+                ($_ -notmatch '_(AsstMgr|Asstmgr)_') -and 
+                ($_ -notmatch '_Mgr_') -and 
+                #modify as needed to add the keyword in a security group we want to attach to Manager/Asst Manager
+                #($_ -notmatch 'SECURITY_GROUP_PLACEHOLDER_HERE'), using "-and" if adding additional security groups we are looking for
+            }
             $groupsToAdd = @($baseGroups)
             
             if ($mgrRole -eq "Assistant Manager") {
                 # ASSISTANT MANAGER GROUPS: Additional groups for Assistant Managers
-                # Current patterns: '_AsstMgr_' or '_Asstmgr_'
+                # Current patterns: '_AsstMgr_', '_Asstmgr_', or '_AsstPropertyMgr_'
+                # NOTE: If no groups match these patterns, no additional groups are added (only base groups)
                 # To add more patterns, use: ($_ -match 'pattern1') -or ($_ -match 'pattern2')
                 # Examples of additional patterns to include:
                 #   -or ($_ -match '_AssistantMgr_')    (alternative naming)
                 #   -or ($_ -match '_AsstManager_')     (alternative naming)
                 #   -or ($_ -match '_Deputy_')          (deputy manager groups)
                 #   -or ($_ -match '_Supervisor_')      (supervisor groups)
-                $asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr)_' }
+                $asstMgrGroups = $allGroups | Where-Object { ($_ -match '_(AsstMgr|Asstmgr)_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE') }
                 $groupsToAdd += $asstMgrGroups
             } elseif ($mgrRole -eq "Manager") {
                 # MANAGER GROUPS: Additional groups for Managers
-                # Current pattern: '_Mgr_'
+                # Current patterns: '_Mgr_' or '_PropertyMgr_'
+                # NOTE: If no groups match these patterns, no additional groups are added (only base groups)
                 # To add more patterns, use: ($_ -match 'pattern1') -or ($_ -match 'pattern2')
                 # Examples of additional patterns to include:
                 #   -or ($_ -match '_Manager_')         (full word manager)
@@ -158,14 +165,16 @@ function Create-ADUserFromForm {
                 #   -or ($_ -match '_Lead_')            (team lead groups)
                 #   -or ($_ -match '_Admin_')           (administrative groups)
                 #   -or ($_ -match '_Senior_')          (senior level access)
-                $mgrGroups = $allGroups | Where-Object { $_ -match '_Mgr_' }
+                $mgrGroups = $allGroups | Where-Object { ($_ -match '_Mgr_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE') }
                 $groupsToAdd += $mgrGroups
             }
             
             # PATTERN MATCHING EXAMPLES:
             # =========================
             # Group Name: "Sales_AsstMgr_Security" → Matches Assistant Manager pattern
-            # Group Name: "IT_Mgr_Access" → Matches Manager pattern  
+            # Group Name: "Property_AsstPropertyMgr_Access" → Matches Assistant Manager pattern
+            # Group Name: "IT_Mgr_Access" → Matches Manager pattern
+            # Group Name: "Property_PropertyMgr_Admin" → Matches Manager pattern  
             # Group Name: "All_Staff_Access" → Matches Base Groups (no manager patterns)
             # Group Name: "Finance_Director_Rights" → Would match if you add '_Director_' pattern
             
