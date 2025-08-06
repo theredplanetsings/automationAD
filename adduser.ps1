@@ -115,6 +115,7 @@ function Create-ADUserFromForm {
             -OfficePhone $telephoneNum `
             -EmailAddress $mail `
             -Replace $attributesToSet
+
         # Assigns security groups based on OU selection and manager role (additive)
         $groupsToAdd = @()
         if ($script:ouGroups.ContainsKey($ouPath)) {
@@ -173,7 +174,6 @@ $script:secGroupCsv = $null
 $script:secGroupCsvError = $false
 $script:ouPaths = @()
 $script:ouGroups = @{}
-
 function Populate-DropdownsFromCsv {
     param($data)
     $cmbOffice.Items.Clear()
