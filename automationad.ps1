@@ -97,7 +97,7 @@ function Create-ADUserFromForm {
             -ChangePasswordAtLogon $true `
             -Path $ldapOUPath `
             -Enabled $true
-        # Only set attributes that have values
+        # Only sets attributes that have values
         $attributesToSet = @{}
         if ($streetAddress) { $attributesToSet.streetAddress = $streetAddress }
         if ($postalCode) { $attributesToSet.postalCode = $postalCode }
@@ -115,12 +115,13 @@ function Create-ADUserFromForm {
             -OfficePhone $telephoneNum `
             -EmailAddress $mail `
             -Replace $attributesToSet
+
         # Assigns security groups based on OU selection and manager role (additive)
         $groupsToAdd = @()
         if ($script:ouGroups.ContainsKey($ouPath)) {
             $allGroups = $script:ouGroups[$ouPath]
             $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
-            # Assign all non-manager groups
+            # Assigns all non-manager groups
             $baseGroups = $allGroups | Where-Object { ($_ -notmatch '_(AsstMgr|Asstmgr)_' ) -and ($_ -notmatch '_Mgr_') }
             $groupsToAdd = @($baseGroups)
             if ($mgrRole -eq "Assistant Manager") {
@@ -173,7 +174,6 @@ $script:secGroupCsv = $null
 $script:secGroupCsvError = $false
 $script:ouPaths = @()
 $script:ouGroups = @{}
-
 function Populate-DropdownsFromCsv {
     param($data)
     $cmbOffice.Items.Clear()
@@ -648,7 +648,7 @@ function Initialize-OUDropdowns {
     $lblMgrRole.Visible = $false
     $cmbMgrRole.Visible = $false
 
-    # Only show first two directory levels in OU dropdown
+    # Only shows first two directory levels in OU dropdown
     $cmbOU.Items.Clear()
     $mainOUs = @()
     foreach ($ouPath in $script:ouPaths) {
@@ -888,7 +888,6 @@ $ShowPage3 = {
     $txtTelephone.Visible = $false
     $btnBack.Visible = $false
     $btnNext2.Visible = $false
-
     # Hides all page 1 controls
     $lblFirstName.Visible = $false
     $txtFirstName.Visible = $false
@@ -901,7 +900,6 @@ $ShowPage3 = {
     $btnSelectCsv.Visible = $false
     $btnNext.Visible = $false
     $btnBackToDashboardFromAdd.Visible = $false
-
     # Shows only page 3 controls
     Initialize-OUDropdowns
     $lblOU.Visible = $true
@@ -955,6 +953,7 @@ $ShowDashboard = {
     $lblSubOU.Visible = $false
     $cmbSubOU.Visible = $false
 }
+
 # =========================
 # Dashboard Controls
 # =========================
@@ -1001,6 +1000,7 @@ function Convert-OUPathToLDAP {
     $ldapPath = if ($ouString) { "$ouString,$dcString" } else { $dcString }
     return $ldapPath
 }
+
 # =========================
 # Initial Page Load
 # =========================
