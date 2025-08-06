@@ -97,7 +97,7 @@ function Create-ADUserFromForm {
             -ChangePasswordAtLogon $true `
             -Path $ldapOUPath `
             -Enabled $true
-        # Only set attributes that have values
+        # Only sets attributes that have values
         $attributesToSet = @{}
         if ($streetAddress) { $attributesToSet.streetAddress = $streetAddress }
         if ($postalCode) { $attributesToSet.postalCode = $postalCode }
