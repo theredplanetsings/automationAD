@@ -138,7 +138,9 @@ function Create-ADUserFromForm {
                 ($_ -notmatch '_(AsstMgr|Asstmgr)_') -and 
                 ($_ -notmatch '_Mgr_') -and 
                 #modify as needed to add the keyword in a security group we want to attach to Manager/Asst Manager
-                #($_ -notmatch 'SECURITY_GROUP_PLACEHOLDER_HERE'), using "-and" if adding additional security groups we are looking for
+                #($_ -notmatch 'SECURITY_GROUP_PLACEHOLDER_HERE'), using "-and" if adding additional security groups we are looking for, example:
+                #($_ -notmatch '_Admin_') -and
+                #($_ -notmatch '_Lead_')
             }
             $groupsToAdd = @($baseGroups)
             
@@ -152,7 +154,12 @@ function Create-ADUserFromForm {
                 #   -or ($_ -match '_AsstManager_')     (alternative naming)
                 #   -or ($_ -match '_Deputy_')          (deputy manager groups)
                 #   -or ($_ -match '_Supervisor_')      (supervisor groups)
-                $asstMgrGroups = $allGroups | Where-Object { ($_ -match '_(AsstMgr|Asstmgr)_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE') }
+                $asstMgrGroups = $allGroups | Where-Object {
+                    ($_ -match '_(AsstMgr|Asstmgr)_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE'), example:
+                    #($_ -match '_AsstManager_') -or
+                    #($_ -match '_Supervisor_')
+                        
+                }
                 $groupsToAdd += $asstMgrGroups
             } elseif ($mgrRole -eq "Manager") {
                 # MANAGER GROUPS: Additional groups for Managers
@@ -165,7 +172,11 @@ function Create-ADUserFromForm {
                 #   -or ($_ -match '_Lead_')            (team lead groups)
                 #   -or ($_ -match '_Admin_')           (administrative groups)
                 #   -or ($_ -match '_Senior_')          (senior level access)
-                $mgrGroups = $allGroups | Where-Object { ($_ -match '_Mgr_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE') }
+                $mgrGroups = $allGroups | Where-Object {
+                    ($_ -match '_Mgr_') # -or ($_ -match 'SECURITY_GROUP_PLACEHOLDER_HERE')
+                    #($_ -match '_Manager_') -or
+                    #($_ -match '_Senior_')
+                }
                 $groupsToAdd += $mgrGroups
             }
             
