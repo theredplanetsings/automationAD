@@ -200,7 +200,7 @@ Interactive Windows Forms GUI for creating Active Directory users with comprehen
 ##### OU Path Conversion
 - **Input:** Human-readable OU path from CSV
 - **Output:** LDAP Distinguished Name format
-- **Example:** `paradigmcos.local\PDC-HQ\Users` → `OU=Users,OU=PDC-HQ,DC=paradigmcos,DC=local`
+- **Example:** `domainname.com\PDC-HQ\Users` → `OU=Users,OU=PDC-HQ,DC=domainname,DC=com`
 
 ##### Security Group Assignment
 1. **Base Groups:** All non-manager groups for the selected OU
