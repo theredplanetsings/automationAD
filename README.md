@@ -13,6 +13,7 @@ These PowerShell scripts automate common Active Directory tasks, including:
 automationAD
 ├── userCreation.ps1           # Standalone script for creating a test AD user (for reference/testing)
 ├── adduser.ps1                # GUI for creating AD users with CSV-driven logic and group assignment
+├── automationad.ps1           # Same as adduser.ps1 but with detailed comments for extending manager roles
 ├── addLicenses.ps1            # General scripts for assigning licenses to users (reference/utility)
 ├── userDeletion.ps1           # Script for deleting an AD user (includes group removal)
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
@@ -21,15 +22,19 @@ automationAD
 └── README.md                  # self explanatory
 ```
 
-## Quick Start Guide for adduser.ps1
+> **Note:** `adduser.ps1` and `automationad.ps1` are functionally identical. Use `automationad.ps1` if you need to understand or modify the manager role group assignment logic, as it contains detailed comments explaining how to add additional manager/assistant manager role patterns.
+
+## Quick Start Guide for adduser.ps1 / automationad.ps1
 
 ### Prerequisites
 - **ActiveDirectory PowerShell module** (installed via RSAT)
 - **Administrative privileges** for AD user creation
 - **Two CSV files** prepared according to specifications below
 
+> **Script Choice:** Use either `adduser.ps1` or `automationad.ps1` - they are functionally identical. Choose `automationad.ps1` if you plan to modify manager role logic, as it contains detailed comments for extending the group assignment patterns.
+
 ### Basic Usage Steps
-1. **Run the script:** `.\adduser.ps1` in PowerShell
+1. **Run the script:** `.\adduser.ps1` or `.\automationad.ps1` in PowerShell
 2. **Page 1:** Enter basic user information and select your User Properties CSV
 3. **Page 2:** Fill in detailed user attributes (populated from CSV)
 4. **Page 3:** Select OU/Security Group CSV, choose organizational unit, and review summary
@@ -118,10 +123,12 @@ All_Staff_Group,All_Staff_Group,All_Staff_Group
 
 ## Script Details
 
-### `adduser.ps1` - Detailed Usage Guide
+### `adduser.ps1` / `automationad.ps1` - Detailed Usage Guide
 
 #### Overview
-Interactive Windows Forms GUI for creating Active Directory users with comprehensive validation and CSV-driven automation.
+Interactive Windows Forms GUI for creating Active Directory users with comprehensive validation and CSV-driven automation. Both scripts are functionally identical.
+
+> **Development Guide:** If you need to modify or extend the manager role group assignment logic, use `automationad.ps1` as it contains detailed comments explaining the pattern matching system and how to add new role types (e.g., Property Manager, Assistant Property Manager roles).
 
 #### Features
 - **3-Page Workflow:** Guided user creation process
@@ -279,7 +286,7 @@ Interactive Windows Forms GUI for creating Active Directory users with comprehen
 ## Configuration and Customization
 
 ### Domain Configuration
-Update the following variables in `adduser.ps1` for your environment:
+Update the following variables in `adduser.ps1` or `automationad.ps1` for your environment:
 ```powershell
 $domainname = "yourdomain.com"          # Line ~22: Email domain
 # Search for "paradigmcos.local" and replace with your AD domain
@@ -292,20 +299,25 @@ $defaultpassword = ConvertTo-SecureString "YourSecurePassword123!" -AsPlainText 
 ```
 
 ### Manager Role Group Patterns
-Customize the patterns used to identify manager-specific groups:
+Customize the patterns used to identify manager-specific groups. For detailed comments on extending these patterns, see `automationad.ps1`:
+
 ```powershell
 # Assistant Manager groups (modify line ~124)
-$asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr)_' }
+$asstMgrGroups = $allGroups | Where-Object { $_ -match '_(AsstMgr|Asstmgr|AsstPropertyMgr)_' }
 
 # Manager groups (modify line ~127) 
-$mgrGroups = $allGroups | Where-Object { $_ -match '_Mgr_' }
+$mgrGroups = $allGroups | Where-Object { $_ -match '_(Mgr|PropertyMgr)_' -and $_ -notmatch '_(AsstMgr|Asstmgr)_' }
 ```
+
+> **Developer Note:** `automationad.ps1` contains extensive comments explaining how to add additional role patterns (e.g., `_PropertyMgr_`, `_AsstPropertyMgr_`) and gracefully handle cases where specific role groups may not exist in your environment.
 
 ### Custom Validation Rules
 Modify required columns for User Properties CSV (line ~158):
 ```powershell
 $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddress","Department","Title")
 ```
+
+> **Extending Manager Roles:** For detailed instructions on adding new manager role patterns (e.g., Regional Manager, Department Manager), see the commented code sections in `automationad.ps1` around lines 119-174. The script uses PowerShell's `-match` and `-notmatch` operators with regex patterns to identify and assign role-specific security groups.
 
 ## Best Practices and Security Considerations
 
@@ -351,7 +363,7 @@ $requiredColumns = @("Office","Company","State","City","PostalCode","StreetAddre
 
 ### Creating a User
 
-1. **Launch Script:** `.\adduser.ps1`
+1. **Launch Script:** `.\adduser.ps1` or `.\automationad.ps1`
 2. **Page 1:**
    - Enter: John, Doe, jdoe, Acme Corp
    - Select User Properties CSV
