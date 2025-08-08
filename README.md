@@ -281,7 +281,6 @@ Interactive Windows Forms GUI for creating Active Directory users with comprehen
 Update the following variables in `adduser.ps1` or `automationad.ps1` for your environment:
 ```powershell
 $domainname = "yourdomain.com"          # Line ~22: Email domain
-# Search for "paradigmcos.local" and replace with your AD domain
 ```
 
 ### Default Password
