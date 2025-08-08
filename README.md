@@ -75,20 +75,12 @@ Branch B,Paradigm Management,DC,Alexandria,34567,789 Third St,Finance,Analyst
 
 The OU/Security Groups CSV maps organizational units to security groups for automatic assignment.
 
-#### Column Header Format:
+#### Column Header Format/Examples:
 Each column header **must** represent an OU path starting with your domain:
 ```
 yourdomain.local\OUName
 yourdomain.local\ParentOU\ChildOU
 yourdomain.local\ParentOU\ChildOU\SubOU
-```
-
-#### Example Column Headers:
-```
-paradigmcos.local\Users
-paradigmcos.local\PDC-MANAGEMENT
-paradigmcos.local\PDC-MANAGEMENT\Users\Internal
-paradigmcos.local\PDC-HQ\Users\Internal\PCC
 ```
 
 #### Security Group Assignment Rows:
@@ -101,11 +93,11 @@ Each row represents a "layer" of security groups:
 
 #### CSV Format Example:
 ```csv
-paradigmcos.local\Users,paradigmcos.local\PDC-MANAGEMENT,paradigmcos.local\PDC-MANAGEMENT\Users
-All_Staff_Group,All_Staff_Group,All_Staff_Group
-,All_Management_Group,All_Management_Group
-,,Management_AsstMgr_Security
-,,Management_Mgr_Security
+yourdomain.local\OUName,yourdomain.local\ParentOU\ChildOU,yourdomain.local\ParentOU\ChildOU\SubOU
+group1,group1,group1
+,group_2,group_2
+,,Property_AsstMgr_Group
+,,Property_Mgr_Group
 ```
 
 #### Group Assignment Logic:
