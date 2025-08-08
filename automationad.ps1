@@ -138,8 +138,7 @@ function Create-ADUserFromForm {
                 #modify as needed to add the keyword in a security group we want to attach to Manager/Asst Manager
                 #($_ -notmatch 'SECURITY_GROUP_PLACEHOLDER_HERE'), using "-and" if adding additional security groups we are looking for, example:
                 ($_ -notmatch '_(AsstMgr|Asstmgr)_') -and 
-                ($_ -notmatch '_Mgr_') #-and
-                #($_ -notmatch '_Lead_')
+                ($_ -notmatch '_Mgr_')
             }
             $groupsToAdd = @($baseGroups)
             
@@ -329,10 +328,10 @@ $txtFirstName.Width = 200
 $txtFirstName.ShortcutsEnabled = $true 
 $form.Controls.Add($txtFirstName)
 $txtFirstName.Add_KeyDown({
-    param($sender, $e)
-    if ($e.Control -and $e.KeyCode -eq [System.Windows.Forms.Keys]::A) {
-        $sender.SelectAll()
-        $e.SuppressKeyPress = $true
+    param($textBox, $keyEvent)
+    if ($keyEvent.Control -and $keyEvent.KeyCode -eq [System.Windows.Forms.Keys]::A) {
+        $textBox.SelectAll()
+        $keyEvent.SuppressKeyPress = $true
     }
 })
 
@@ -349,10 +348,10 @@ $txtLastName.Width = 200
 $txtLastName.ShortcutsEnabled = $true  
 $form.Controls.Add($txtLastName)
 $txtLastName.Add_KeyDown({
-    param($sender, $e)
-    if ($e.Control -and $e.KeyCode -eq [System.Windows.Forms.Keys]::A) {
-        $sender.SelectAll()
-        $e.SuppressKeyPress = $true
+    param($textBox, $keyEvent)
+    if ($keyEvent.Control -and $keyEvent.KeyCode -eq [System.Windows.Forms.Keys]::A) {
+        $textBox.SelectAll()
+        $keyEvent.SuppressKeyPress = $true
     }
 })
 
@@ -549,10 +548,10 @@ $txtTelephone.ShortcutsEnabled = $true
 $txtTelephone.Visible = $false
 $form.Controls.Add($txtTelephone)
 $txtTelephone.Add_KeyDown({
-    param($sender, $e)
-    if ($e.Control -and $e.KeyCode -eq [System.Windows.Forms.Keys]::A) {
-        $sender.SelectAll()
-        $e.SuppressKeyPress = $true
+    param($textBox, $keyEvent)
+    if ($keyEvent.Control -and $keyEvent.KeyCode -eq [System.Windows.Forms.Keys]::A) {
+        $textBox.SelectAll()
+        $keyEvent.SuppressKeyPress = $true
     }
 })
 
@@ -795,7 +794,6 @@ $cmbMgrRole.Add_SelectedIndexChanged({
 # Summary Update Function
 # =========================
 function Update-Summary {
-    $domainRoot = 'paradigmcos.local'
     $selectedOU = $cmbOU.SelectedItem
     $selectedSubOU = $cmbSubOU.SelectedItem
     $mgrRole = if ($cmbMgrRole.Visible) { $cmbMgrRole.SelectedItem } else { "Not a manager" }
