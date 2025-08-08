@@ -135,10 +135,10 @@ function Create-ADUserFromForm {
             #   -notmatch '_Lead_'      (excludes lead/supervisor groups)
             #   -notmatch '_Senior_'    (excludes senior role groups)
             $baseGroups = $allGroups | Where-Object {
-                 #modify as needed to add the keyword in a security group we want to attach to Manager/Asst Manager
+                #modify as needed to add the keyword in a security group we want to attach to Manager/Asst Manager
                 #($_ -notmatch 'SECURITY_GROUP_PLACEHOLDER_HERE'), using "-and" if adding additional security groups we are looking for, example:
-                ($_ -notmatch '_(AsstMgr|Asstmgr)_') # -and 
-                #($_ -notmatch '_Mgr_') -and
+                ($_ -notmatch '_(AsstMgr|Asstmgr)_') -and 
+                ($_ -notmatch '_Mgr_') #-and
                 #($_ -notmatch '_Lead_')
             }
             $groupsToAdd = @($baseGroups)
