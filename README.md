@@ -19,7 +19,7 @@ automationAD
 ├── correctlyformatted.csv     # Example CSV with all required columns for user creation
 ├── incorrectlyformatted.csv   # Example CSV missing required columns (for validation testing)
 ├── secgroups.csv              # Security group mapping CSV template (OU path columns, group rows)
-└── README.md                  # self explanatory
+└── README.md                  # self-explanatory
 ```
 
 > **Note:** `adduser.ps1` and `automationad.ps1` are functionally identical. Use `automationad.ps1` if you need to understand or modify the manager role group assignment logic, as it contains detailed comments explaining how to add additional manager/assistant manager role patterns.
